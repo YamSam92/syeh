@@ -213,6 +213,12 @@ section{padding:76px 28px;position:relative}
 .gb-item .gb-date{color:#C4BFB6;font-weight:300}
 .gb-item p{font-size:13.5px;color:var(--ink);font-weight:300}
 
+/* ── RSVP (참석 여부) ── */
+.rv-select{width:100%;border:1px solid var(--line);border-radius:2px;padding:13px 14px;font-family:inherit;font-size:13.5px;color:var(--ink);background:var(--bg);margin-bottom:10px;outline:none;font-weight:300}
+.rv-attend{display:flex;gap:8px;margin-bottom:10px}
+.rv-opt{flex:1;padding:13px;border:1px solid var(--line);border-radius:2px;background:var(--bg);color:var(--sub);font-family:inherit;font-size:13px;letter-spacing:1px;cursor:pointer;transition:.25s}
+.rv-opt.on{border-color:var(--ink);color:var(--ink);background:var(--soft);font-weight:700}
+
 /* ── 푸터/공유 ── */
 footer{padding:70px 28px 90px;text-align:center;background:var(--soft)}
 footer .serif{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:30px;letter-spacing:2px;color:var(--ink)}
@@ -425,6 +431,37 @@ footer .thanks{font-size:12.5px;color:var(--sub);margin:16px 0 34px;line-height:
     <div id="gb-list" class="reveal d2"></div>
   </section>
 
+  <!-- 참석 여부 (RSVP) -->
+  <section style="background:var(--soft)">
+    <div class="reveal"><div class="sec-label">R.S.V.P</div>
+    <div class="sec-title">참석 여부를 알려주세요</div>
+    <div class="sec-sub">미리 알려주시면 더욱 정성껏 준비하겠습니다</div></div>
+    <div class="gb-form reveal d2" id="rsvp-box">
+      <input id="rv-name" type="text" maxlength="10" placeholder="이름">
+      <select id="rv-rel" class="rv-select">
+        <option value="">관계를 선택해주세요</option>
+        <option>신랑 지인</option>
+        <option>신부 지인</option>
+        <option>신랑측 혼주 지인</option>
+        <option>신부측 혼주 지인</option>
+        <option>가족 · 친척</option>
+        <option>기타</option>
+      </select>
+      <div class="rv-attend">
+        <button type="button" class="rv-opt" data-v="true" onclick="rvPick(this)">참석 가능해요</button>
+        <button type="button" class="rv-opt" data-v="false" onclick="rvPick(this)">참석이 어려워요</button>
+      </div>
+      <select id="rv-cnt" class="rv-select">
+        <option value="1">본인 포함 1명</option>
+        <option value="2">본인 포함 2명</option>
+        <option value="3">본인 포함 3명</option>
+        <option value="4">본인 포함 4명</option>
+        <option value="5">본인 포함 5명</option>
+      </select>
+      <button class="gb-submit" onclick="sendRsvp()">참석 여부 보내기</button>
+    </div>
+  </section>
+
   <!-- 푸터 -->
   <footer>
     <div class="serif reveal">Thank you</div>
@@ -483,6 +520,7 @@ const SUPABASE_KEY = 'sb_publishable_HYipdtwD67ZbKrl_Lziiow_Z0gHm6HZ';
 
 // 🎬 게스트스냅(영상): 구글드라이브 공유 폴더 링크
 const VIDEO_DRIVE_URL = '';
+const RV_TABLE = 'rsvp';   // 참석여부 테이블 (디자인2 전용)
 /* ═══════════════════════════════════════════════ */
 
 /* ── 지도 임베드 (API 키 불필요) ── */
@@ -892,6 +930,39 @@ function addGuest(){
   });
 }
 gbLoad();
+
+/* ── 참석 여부 (RSVP) ── */
+var rvAttend = null, rvSending = false;
+function rvPick(btn){
+  rvAttend = btn.dataset.v === 'true';
+  document.querySelectorAll('.rv-opt').forEach(function(b){ b.classList.toggle('on', b === btn); });
+  document.getElementById('rv-cnt').style.display = rvAttend ? '' : 'none';
+}
+function sendRsvp(){
+  if(rvSending) return;
+  var name = document.getElementById('rv-name').value.trim();
+  var rel = document.getElementById('rv-rel').value;
+  if(!name){ toast('이름을 입력해주세요'); return; }
+  if(!rel){ toast('관계를 선택해주세요'); return; }
+  if(rvAttend === null){ toast('참석 여부를 선택해주세요'); return; }
+  if(!SUPABASE_URL){ toast('준비 중이에요'); return; }
+  rvSending = true;
+  fetch(SUPABASE_URL + '/rest/v1/' + RV_TABLE, {
+    method: 'POST',
+    headers: Object.assign({ 'Content-Type': 'application/json' }, SB_HEADERS),
+    body: JSON.stringify({ name: name.slice(0,20), relation: rel, attend: rvAttend,
+      headcount: rvAttend ? parseInt(document.getElementById('rv-cnt').value, 10) : 1 })
+  }).then(function(r){
+    rvSending = false;
+    if(!r.ok) throw new Error('rsvp failed');
+    document.getElementById('rsvp-box').innerHTML =
+      '<p style="text-align:center;font-size:14px;line-height:2.2;padding:10px 0;font-weight:300">소중한 회신 감사합니다.<br>' + esc(name) + ' 님의 참석 여부가 잘 전달되었습니다.</p>';
+    toast('참석 여부가 전달되었습니다');
+  }).catch(function(){
+    rvSending = false;
+    toast('전송에 실패했어요. 잠시 후 다시 시도해주세요');
+  });
+}
 </script>
 </body>
 </html>

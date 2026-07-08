@@ -36,6 +36,9 @@ h2{font-family:'Cormorant Garamond',serif;font-size:24px;text-align:center;lette
 #viewer.open{display:flex}
 #viewer img{max-width:94%;max-height:88vh;border-radius:2px}
 #viewer .x{position:absolute;top:18px;right:22px;color:#fff;font-size:28px;background:none;border:none;cursor:pointer}
+table.rv{width:100%;max-width:640px;margin:0 auto;border-collapse:collapse;font-size:12.5px;background:#fff}
+.rv th,.rv td{border:1px solid var(--line);padding:8px 10px;text-align:center}
+.rv th{background:var(--soft);font-weight:700}
 </style>
 </head>
 <body>
@@ -51,6 +54,15 @@ h2{font-family:'Cormorant Garamond',serif;font-size:24px;text-align:center;lette
   <div class="empty" id="empty" style="display:none">아직 올라온 사진이 없어요.</div>
 
   <div class="msg-sec">
+    <h2>R.S.V.P</h2>
+    <p class="status" id="rv-sum"></p>
+    <div style="text-align:center;margin-bottom:16px">
+      <button class="btn" onclick="downloadRsvp()">엑셀(.xlsx)로 내려받기</button>
+    </div>
+    <div id="rv-list"></div>
+  </div>
+
+  <div class="msg-sec">
     <h2>Messages</h2>
     <div id="msgs"></div>
   </div>
@@ -62,6 +74,7 @@ h2{font-family:'Cormorant Garamond',serif;font-size:24px;text-align:center;lette
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 const SUPABASE_URL = 'https://xfgmxlfpcdhzghuzubog.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_HYipdtwD67ZbKrl_Lziiow_Z0gHm6HZ';
@@ -165,7 +178,43 @@ async function loadMsgs(){
   }catch(e){}
 }
 
-load(); loadMsgs();
+/* ── RSVP 확인 + 엑셀 다운로드 ── */
+const RV_TABLE = 'rsvp';
+let rvRows = [];
+async function loadRsvp(){
+  try{
+    rvRows = await fetch(SUPABASE_URL + '/rest/v1/' + RV_TABLE + '?select=name,relation,attend,headcount,created_at&order=created_at.desc&limit=1000',
+      { headers: H }).then(r => r.json());
+    const yes = rvRows.filter(r => r.attend), no = rvRows.filter(r => !r.attend);
+    const ppl = yes.reduce((s,r) => s + (r.headcount || 1), 0);
+    document.getElementById('rv-sum').textContent = rvRows.length
+      ? '참석 ' + yes.length + '건 (총 ' + ppl + '명) · 불참 ' + no.length + '건'
+      : '아직 회신이 없어요.';
+    document.getElementById('rv-list').innerHTML = rvRows.length
+      ? '<table class="rv"><tr><th>이름</th><th>관계</th><th>참석 여부</th><th>인원</th><th>회신일</th></tr>'
+        + rvRows.map(r => '<tr><td>' + esc(r.name) + '</td><td>' + esc(r.relation) + '</td><td>'
+          + (r.attend ? '참석' : '불참') + '</td><td>' + (r.attend ? (r.headcount || 1) + '명' : '-')
+          + '</td><td>' + (r.created_at || '').slice(0,10).replace(/-/g,'.') + '</td></tr>').join('')
+        + '</table>'
+      : '';
+  }catch(e){}
+}
+function downloadRsvp(){
+  if(!rvRows.length){ alert('내려받을 회신이 없어요.'); return; }
+  const data = rvRows.map(r => ({
+    '이름': r.name, '관계': r.relation,
+    '참석여부': r.attend ? '참석' : '불참',
+    '인원': r.attend ? (r.headcount || 1) : '',
+    '회신일': (r.created_at || '').slice(0,10)
+  }));
+  const ws = XLSX.utils.json_to_sheet(data);
+  ws['!cols'] = [{wch:12},{wch:16},{wch:10},{wch:8},{wch:12}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '참석여부');
+  XLSX.writeFile(wb, '참석여부회신_' + new Date().toISOString().slice(0,10) + '.xlsx');
+}
+
+load(); loadMsgs(); loadRsvp();
 </script>
 </body>
 </html>
