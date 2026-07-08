@@ -772,7 +772,9 @@ function startUpload(){
   var prog = document.getElementById('up-progress'), bar = document.getElementById('up-bar');
   prog.style.display = 'block'; bar.style.width = '0%';
   var done = 0, total = upFiles.length, stamp = Date.now();
-  var safeName = name.replace(/[^0-9A-Za-z가-힣]/g, '_');
+  // 한글 이름은 파일명에 쓸 수 없어 base64url로 인코딩 (moments 페이지에서 복원)
+  var nameTag = 'n' + btoa(unescape(encodeURIComponent(name.slice(0,20))))
+                        .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
   upStatus.textContent = '0 / ' + total + '장 업로드 중...';
   (function next(i){
     if(i >= total){
@@ -786,7 +788,7 @@ function startUpload(){
     }
     var f = upFiles[i];
     var ext = ((f.name || '').match(/\.[a-zA-Z0-9]+$/) || ['.jpg'])[0];
-    var path = encodeURIComponent(safeName + '_' + stamp + '_' + (i+1) + ext);
+    var path = nameTag + '.' + stamp + '.' + (i+1) + ext;
     fetch(SUPABASE_URL + '/storage/v1/object/guest-snaps/' + path, {
       method: 'POST',
       headers: Object.assign({ 'Content-Type': f.type || 'image/jpeg' }, SB_HEADERS),
