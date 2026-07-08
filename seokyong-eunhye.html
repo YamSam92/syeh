@@ -477,9 +477,9 @@ const PHOTOS = {
 // 🗺️ 지도 검색어
 const VENUE_QUERY = '충청남도 보령시 남포면 보령남로 195';
 
-// 📸 게스트스냅(사진): Firebase Storage 설정 — 'firebase-설정-가이드.md' 참고
-//    설정 전까지는 업로드 버튼이 안내 메시지만 띄웁니다.
-const FIREBASE_CONFIG = null;
+// 📸 게스트스냅(사진) + 축하 메시지(공유 방명록): Supabase 연결 (무료)
+const SUPABASE_URL = 'https://xfgmxlfpcdhzghuzubog.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_HYipdtwD67ZbKrl_Lziiow_Z0gHm6HZ';
 
 // 🎬 게스트스냅(영상): 구글드라이브 공유 폴더 링크
 const VIDEO_DRIVE_URL = '';
@@ -693,7 +693,7 @@ var upGrid = document.getElementById('up-grid'),
     upAdd = upGrid.querySelector('.up-add'),
     upFileInput = document.getElementById('up-file'),
     upStatus = document.getElementById('up-status');
-/* 20MB 초과 사진은 자동 압축 (리사이즈 + JPEG 재인코딩) */
+/* 사진 자동 최적화 (최대 2000px · 약 2MB 이하로 압축) */
 function compressImage(f, cb){
   var img = new Image();
   img.onload = function(){
@@ -705,13 +705,13 @@ function compressImage(f, cb){
       cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
       cv.toBlob(function(blob){
         if(!blob){ finish(null); return; }
-        if(blob.size <= 19*1024*1024 || (dim <= 1600 && q <= 0.6)){ finish(blob); }
-        else if(q > 0.65){ attempt(dim, q - 0.15); }      // 품질부터 낮추고
-        else { attempt(Math.round(dim*0.7), 0.85); }       // 그래도 크면 크기 축소
+        if(blob.size <= 2.2*1024*1024 || (dim <= 1200 && q <= 0.6)){ finish(blob); }
+        else if(q > 0.65){ attempt(dim, q - 0.1); }        // 품질부터 낮추고
+        else { attempt(Math.round(dim*0.75), 0.8); }        // 그래도 크면 크기 축소
       }, 'image/jpeg', q);
     }
     function finish(blob){ URL.revokeObjectURL(img.src); cb(blob); }
-    attempt(4096, 0.9);
+    attempt(2000, 0.85);
   };
   img.onerror = function(){ URL.revokeObjectURL(img.src); cb(null); };
   img.src = URL.createObjectURL(f);
@@ -724,8 +724,8 @@ upFileInput.addEventListener('change', function(){
     var f = list[i];
     if(upFiles.length >= 20){ toast('사진은 한 번에 최대 20장까지예요'); upStatus.textContent=''; return; }
     if(f.type.indexOf('image/') !== 0){ toast('사진 파일만 올릴 수 있어요'); proc(i+1); return; }
-    if(f.size > 20*1024*1024){
-      upStatus.textContent = '용량이 큰 사진을 줄이는 중...';
+    if(f.size > 2.5*1024*1024){
+      upStatus.textContent = '사진을 최적화하는 중...';
       compressImage(f, function(blob){
         if(blob){
           blob.name = f.name.replace(/\.[^.]+$/, '') + '.jpg';
@@ -753,25 +753,7 @@ function addThumb(f){
   div.appendChild(img); div.appendChild(del);
   upGrid.insertBefore(div, upAdd);
 }
-var fbStorage = null;
-function loadFirebase(cb){
-  if(fbStorage) return cb();
-  var s1 = document.createElement('script');
-  s1.src = 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js';
-  s1.onload = function(){
-    var s2 = document.createElement('script');
-    s2.src = 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js';
-    s2.onload = function(){
-      firebase.initializeApp(FIREBASE_CONFIG);
-      fbStorage = firebase.storage();
-      cb();
-    };
-    s2.onerror = function(){ uploadFail('네트워크 오류가 발생했어요. 다시 시도해주세요.'); };
-    document.head.appendChild(s2);
-  };
-  s1.onerror = function(){ uploadFail('네트워크 오류가 발생했어요. 다시 시도해주세요.'); };
-  document.head.appendChild(s1);
-}
+var SB_HEADERS = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY };
 var uploading = false;
 function uploadFail(msg){
   upStatus.textContent = msg;
@@ -784,39 +766,41 @@ function startUpload(){
   var name = document.getElementById('up-name').value.trim();
   if(!name){ toast('성함을 입력해주세요'); return; }
   if(upFiles.length === 0){ toast('사진을 선택해주세요'); return; }
-  if(!FIREBASE_CONFIG){ toast('사진 업로드는 준비 중이에요. 조금만 기다려주세요!'); return; }
+  if(!SUPABASE_URL){ toast('사진 업로드는 준비 중이에요. 조금만 기다려주세요!'); return; }
   uploading = true;
   var btn = document.getElementById('up-btn'); btn.disabled = true; btn.style.opacity = .6;
   var prog = document.getElementById('up-progress'), bar = document.getElementById('up-bar');
   prog.style.display = 'block'; bar.style.width = '0%';
-  loadFirebase(function(){
-    var done = 0, total = upFiles.length, stamp = Date.now();
-    var safeName = name.replace(/[\/\\#?%\s]/g, '_');
-    upStatus.textContent = '0 / ' + total + '장 업로드 중...';
-    function next(i){
-      if(i >= total){
-        upStatus.textContent = total + '장 업로드 완료! 소중한 사진 감사합니다';
-        toast('업로드 완료! 감사합니다');
-        upFiles = [];
-        upGrid.querySelectorAll('.up-thumb').forEach(function(t){ t.remove(); });
-        uploading = false; btn.disabled = false; btn.style.opacity = 1;
-        setTimeout(function(){ prog.style.display = 'none'; }, 2000);
-        return;
-      }
-      var f = upFiles[i];
-      var ext = (f.name.match(/\.[a-zA-Z0-9]+$/) || ['.jpg'])[0];
-      var path = 'guest-snaps/' + safeName + '_' + stamp + '_' + (i+1) + ext;
-      fbStorage.ref(path).put(f, {contentType: f.type}).then(function(){
-        done++;
-        bar.style.width = Math.round(done/total*100) + '%';
-        upStatus.textContent = done + ' / ' + total + '장 업로드 중...';
-        next(i+1);
-      }).catch(function(){
-        uploadFail('업로드 중 오류가 발생했어요. 다시 시도해주세요. (' + done + '장 성공)');
-      });
+  var done = 0, total = upFiles.length, stamp = Date.now();
+  var safeName = name.replace(/[^0-9A-Za-z가-힣]/g, '_');
+  upStatus.textContent = '0 / ' + total + '장 업로드 중...';
+  (function next(i){
+    if(i >= total){
+      upStatus.textContent = total + '장 업로드 완료! 소중한 사진 감사합니다';
+      toast('업로드 완료! 감사합니다');
+      upFiles = [];
+      upGrid.querySelectorAll('.up-thumb').forEach(function(t){ t.remove(); });
+      uploading = false; btn.disabled = false; btn.style.opacity = 1;
+      setTimeout(function(){ prog.style.display = 'none'; }, 2000);
+      return;
     }
-    next(0);
-  });
+    var f = upFiles[i];
+    var ext = ((f.name || '').match(/\.[a-zA-Z0-9]+$/) || ['.jpg'])[0];
+    var path = encodeURIComponent(safeName + '_' + stamp + '_' + (i+1) + ext);
+    fetch(SUPABASE_URL + '/storage/v1/object/guest-snaps/' + path, {
+      method: 'POST',
+      headers: Object.assign({ 'Content-Type': f.type || 'image/jpeg' }, SB_HEADERS),
+      body: f
+    }).then(function(r){
+      if(!r.ok) throw new Error('upload failed');
+      done++;
+      bar.style.width = Math.round(done/total*100) + '%';
+      upStatus.textContent = done + ' / ' + total + '장 업로드 중...';
+      next(i+1);
+    }).catch(function(){
+      uploadFail('업로드 중 오류가 발생했어요. 다시 시도해주세요. (' + done + '장 성공)');
+    });
+  })(0);
 }
 /* ── 게스트스냅: 영상은 구글드라이브 ── */
 function openVideoDrive(){
@@ -856,17 +840,9 @@ function toast(msg){
   toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2200);
 }
 
-/* ── 방명록 (localStorage) ── */
-var GB_KEY = 'wedding_guestbook_se';
-var gbMem = [
-  {name:'수민', msg:'두 분의 결혼을 진심으로 축하해요! 늘 행복하세요', date:'2026.07.01'},
-  {name:'현우', msg:'석용아 은혜야 축하한다! 예쁘게 잘 살아라', date:'2026.07.03'}
-];
-function gbLoad(){
-  try{ var s = localStorage.getItem(GB_KEY); if(s) gbMem = JSON.parse(s); }catch(e){}
-  render();
-}
-function gbSave(){ try{ localStorage.setItem(GB_KEY, JSON.stringify(gbMem)); }catch(e){} }
+/* ── 방명록 (Supabase 공유 방명록) ── */
+var gbMem = [];
+var gbSending = false;
 function esc(s){ var d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
 function render(){
   document.getElementById('gb-list').innerHTML = gbMem.slice().reverse().map(function(g){
@@ -874,16 +850,44 @@ function render(){
       +'</span><span class="gb-date">'+esc(g.date)+'</span></div><p>'+esc(g.msg)+'</p></div>';
   }).join('');
 }
+function gbLoad(){
+  if(!SUPABASE_URL){ render(); return; }
+  fetch(SUPABASE_URL + '/rest/v1/guestbook?select=name,msg,created_at&order=created_at.asc&limit=300',
+        { headers: SB_HEADERS })
+    .then(function(r){ return r.json(); })
+    .then(function(rows){
+      gbMem = rows.map(function(r){
+        return { name: r.name, msg: r.msg,
+                 date: (r.created_at || '').slice(0,10).replace(/-/g,'.') };
+      });
+      render();
+    })
+    .catch(function(){ render(); });
+}
 function addGuest(){
+  if(gbSending) return;
   var name = document.getElementById('gb-name').value.trim();
   var msg = document.getElementById('gb-msg').value.trim();
   if(!name || !msg){ toast('이름과 메시지를 입력해주세요'); return; }
-  var now = new Date();
-  gbMem.push({name:name, msg:msg,
-    date: now.getFullYear()+'.'+('0'+(now.getMonth()+1)).slice(-2)+'.'+('0'+now.getDate()).slice(-2)});
-  gbSave(); render();
-  document.getElementById('gb-name').value=''; document.getElementById('gb-msg').value='';
-  toast('축하 메시지가 등록되었습니다');
+  if(!SUPABASE_URL){ toast('방명록은 준비 중이에요'); return; }
+  gbSending = true;
+  fetch(SUPABASE_URL + '/rest/v1/guestbook', {
+    method: 'POST',
+    headers: Object.assign({ 'Content-Type': 'application/json' }, SB_HEADERS),
+    body: JSON.stringify({ name: name.slice(0,20), msg: msg.slice(0,200) })
+  }).then(function(r){
+    gbSending = false;
+    if(!r.ok) throw new Error('insert failed');
+    var now = new Date();
+    gbMem.push({ name: name, msg: msg,
+      date: now.getFullYear()+'.'+('0'+(now.getMonth()+1)).slice(-2)+'.'+('0'+now.getDate()).slice(-2) });
+    render();
+    document.getElementById('gb-name').value=''; document.getElementById('gb-msg').value='';
+    toast('축하 메시지가 등록되었습니다');
+  }).catch(function(){
+    gbSending = false;
+    toast('등록에 실패했어요. 잠시 후 다시 시도해주세요');
+  });
 }
 gbLoad();
 </script>
