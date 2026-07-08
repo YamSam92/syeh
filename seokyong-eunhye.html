@@ -37,45 +37,28 @@ section{padding:76px 28px;position:relative}
 .sec-sub{font-size:12.5px;color:var(--sub);text-align:center;margin-bottom:40px}
 .divider{width:1px;height:44px;background:var(--line);margin:26px auto}
 
-/* ── 인트로 오버레이: 반지 박스 ── */
-#intro{position:fixed;inset:0;background:var(--bg);z-index:100;display:flex;flex-direction:column;justify-content:center;align-items:center;transition:opacity 1.2s ease,visibility 1.2s;cursor:pointer}
-#intro.hide{opacity:0;visibility:hidden}
-.intro-names{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:34px;letter-spacing:2px;color:var(--ink);margin-bottom:14px;opacity:0;animation:introFade 1.4s .2s forwards}
-.intro-line{width:0;height:1px;background:var(--accent);margin-bottom:44px;opacity:0;animation:lineGrow 1.2s .7s forwards}
-@keyframes introFade{to{opacity:1}}
-@keyframes lineGrow{to{width:120px;opacity:1}}
-#ringbox{position:relative;width:150px;height:132px;opacity:0;animation:introFade 1.4s .6s forwards}
-.rb-inner{position:absolute;left:6px;top:6px;width:138px;height:48px;background:radial-gradient(ellipse at 50% 30%,#33302B,#171614);border-radius:6px 6px 2px 2px;z-index:1;box-shadow:inset 0 -5px 12px rgba(0,0,0,.65)}
-.rb-ring{position:absolute;top:34px;left:50%;width:36px;height:36px;margin-left:-18px;border-radius:50%;border:5px solid #C9B891;box-shadow:inset 0 0 0 1px #A79877,0 2px 10px rgba(201,184,145,.7);z-index:4;opacity:0;transform:translateY(14px) scale(.55);transition:all .9s .55s cubic-bezier(.2,.8,.3,1.25)}
-.rb-lid{position:absolute;left:0;top:0;width:150px;height:56px;background:linear-gradient(165deg,#2E2C29,#1C1B19);border-radius:8px 8px 2px 2px;transform-origin:top center;transition:transform 1s cubic-bezier(.55,-.15,.35,1.1),opacity 1s;z-index:5;box-shadow:0 4px 12px rgba(20,20,20,.35)}
-.rb-lid::after{content:'';position:absolute;left:14px;right:14px;bottom:9px;height:1px;background:rgba(201,184,145,.9)}
-.rb-base{position:absolute;left:0;bottom:0;width:150px;height:76px;background:linear-gradient(200deg,#2A2825,#161513);border-radius:2px 2px 8px 8px;z-index:3;box-shadow:inset 0 6px 12px rgba(0,0,0,.25),0 14px 28px rgba(20,20,20,.28)}
-.rb-base::after{content:'';position:absolute;left:14px;right:14px;top:9px;height:1px;background:rgba(201,184,145,.55)}
-.rb-glow{position:absolute;top:-36px;left:50%;width:160px;height:160px;margin-left:-80px;background:radial-gradient(circle,rgba(214,196,155,.5),transparent 65%);opacity:0;transition:opacity 1.2s .9s;z-index:2;pointer-events:none}
-.rb-fring{position:absolute;left:50%;z-index:6;opacity:0;pointer-events:none;display:none;filter:drop-shadow(0 10px 22px rgba(30,28,25,.4)) blur(6px);transition:transform 1.6s .6s cubic-bezier(.16,.84,.26,1),opacity 1s .6s,filter 1.4s .8s}
-.rb-fring.groom{width:88px;margin-left:-44px;top:20px;transform:translateY(34px) scale(.45)}
-.rb-fring.bride{width:124px;margin-left:-62px;top:10px;transform:translateY(52px) scale(.45);transition-delay:.95s}
-#ringbox.has-photo .rb-fring{display:block}
-#ringbox.has-photo .rb-ring{display:none}
-.rb-halo{position:absolute;left:50%;border-radius:50%;background:radial-gradient(circle,rgba(222,206,168,.7),rgba(222,206,168,0) 68%);opacity:0;z-index:3;pointer-events:none;transition:opacity 1.6s 1.4s}
-.rb-halo.hg{width:130px;height:130px;margin-left:-105px;top:-133px}
-.rb-halo.hb{width:170px;height:170px;margin-left:-57px;top:-108px}
-#ringbox.open{perspective:700px}
-#ringbox.open .rb-lid{transform:rotateX(-112deg);opacity:.92}
-#ringbox.open .rb-ring{opacity:1;transform:translateY(-20px) scale(1)}
-#ringbox.open .rb-fring{opacity:1;filter:drop-shadow(0 10px 22px rgba(30,28,25,.4)) blur(0)}
-#ringbox.open .rb-fring.groom{transform:translate(-40px,-110px) scale(1) rotate(-10deg);animation:bobG 4.6s ease-in-out 2.6s infinite}
-#ringbox.open .rb-fring.bride{transform:translate(28px,-72px) scale(1) rotate(7deg);animation:bobB 4.6s ease-in-out 3.1s infinite}
-#ringbox.open .rb-halo{opacity:1;animation:haloPulse 4.6s ease-in-out 3s infinite}
-@keyframes bobG{0%,100%{transform:translate(-40px,-110px) scale(1) rotate(-10deg);filter:drop-shadow(0 10px 22px rgba(30,28,25,.4)) blur(0) brightness(1)}50%{transform:translate(-40px,-117px) scale(1) rotate(-7.5deg);filter:drop-shadow(0 14px 26px rgba(30,28,25,.3)) blur(0) brightness(1.12)}}
-@keyframes bobB{0%,100%{transform:translate(28px,-72px) scale(1) rotate(7deg);filter:drop-shadow(0 10px 22px rgba(30,28,25,.4)) blur(0) brightness(1)}50%{transform:translate(28px,-80px) scale(1) rotate(9.5deg);filter:drop-shadow(0 14px 26px rgba(30,28,25,.3)) blur(0) brightness(1.12)}}
-@keyframes haloPulse{0%,100%{opacity:1}50%{opacity:.5}}
-#ringbox.open .rb-glow{opacity:1}
-.rb-s{position:absolute;color:#C9B891;opacity:0;font-size:14px;z-index:7;pointer-events:none}
-#ringbox.open .rb-s{animation:spark 1.3s .75s ease-out forwards}
-@keyframes spark{0%{opacity:0;transform:translate(0,0) scale(.4)}25%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.2)}}
-.intro-hint{margin-top:38px;font-size:11px;letter-spacing:5px;color:var(--sub);opacity:0;animation:hintPulse 2.4s 1.2s infinite}
-@keyframes hintPulse{0%,100%{opacity:.9}50%{opacity:.25}}
+/* ── 인트로: 에디토리얼 커버 (모던) ── */
+#intro{position:fixed;inset:0;z-index:100;overflow:hidden;cursor:pointer}
+#intro.hide{visibility:hidden}
+.intro-panel{position:absolute;left:0;width:100%;height:50.4%;background:linear-gradient(180deg,#1c1a17,#26221b);z-index:1;transition:transform 1.25s cubic-bezier(.76,0,.24,1)}
+.intro-panel.top{top:0;box-shadow:0 1px 0 rgba(201,184,145,.28)}
+.intro-panel.bottom{bottom:0;box-shadow:0 -1px 0 rgba(201,184,145,.28)}
+#intro.open .intro-panel.top{transform:translateY(-100%)}
+#intro.open .intro-panel.bottom{transform:translateY(100%)}
+.intro-center{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 30px;pointer-events:none;transition:opacity .6s ease,transform .9s ease}
+#intro.open .intro-center{opacity:0;transform:translateY(-18px)}
+.ic-eyebrow{font-size:10.5px;letter-spacing:6px;color:var(--accent);opacity:0;animation:icFade 1.3s .3s forwards}
+.ic-names{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:42px;line-height:1.12;color:#F4F2ED;margin:16px 0 2px;opacity:0;animation:icRise 1.4s .55s forwards}
+.ic-names span{font-style:normal;font-size:24px;color:var(--accent);margin:0 8px;vertical-align:middle}
+.ic-rule{width:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);margin:20px 0;opacity:0;animation:icRule 1.2s 1s forwards}
+.ic-date{font-family:'Cormorant Garamond',serif;font-size:19px;letter-spacing:5px;color:#DED9CF;opacity:0;animation:icFade 1.3s 1.15s forwards}
+.ic-sub{font-size:12px;letter-spacing:3px;color:#A29C92;margin-top:11px;opacity:0;animation:icFade 1.3s 1.35s forwards}
+@keyframes icFade{to{opacity:1}}
+@keyframes icRise{0%{opacity:0;transform:translateY(15px)}100%{opacity:1;transform:none}}
+@keyframes icRule{to{width:150px;opacity:1}}
+.intro-hint{position:absolute;left:0;right:0;bottom:44px;z-index:3;text-align:center;font-size:10px;letter-spacing:5px;color:#8f8a80;opacity:0;pointer-events:none;animation:hintPulse 2.4s 1.7s infinite}
+#intro.open .intro-hint{animation:none;opacity:0;transition:opacity .4s}
+@keyframes hintPulse{0%,100%{opacity:.85}50%{opacity:.2}}
 
 /* ── 파티클 캔버스 (샴페인 더스트) ── */
 #petals{position:fixed;inset:0;pointer-events:none;z-index:50}
@@ -245,29 +228,18 @@ footer .thanks{font-size:12.5px;color:var(--sub);margin:16px 0 34px;line-height:
 <body>
 <div id="wrap">
 
-  <!-- 인트로: 반지 박스 -->
+  <!-- 인트로: 에디토리얼 커버 -->
   <div id="intro">
-    <div class="intro-names">Seokyong &amp; Eunhye</div>
-    <div class="intro-line"></div>
-    <div id="ringbox">
-      <div class="rb-glow"></div>
-      <div class="rb-halo hg"></div>
-      <div class="rb-halo hb"></div>
-      <div class="rb-inner"></div>
-      <div class="rb-ring"></div>
-      <img class="rb-fring groom" alt="신랑 반지">
-      <img class="rb-fring bride" alt="신부 반지">
-      <div class="rb-lid"></div>
-      <div class="rb-base"></div>
-      <span class="rb-s" style="left:20px;top:-30px;--dx:-26px;--dy:-44px">✦</span>
-      <span class="rb-s" style="right:14px;top:-44px;--dx:30px;--dy:-38px;animation-delay:1.15s">✦</span>
-      <span class="rb-s" style="left:66px;top:-88px;--dx:4px;--dy:-52px;animation-delay:1.5s">✧</span>
-      <span class="rb-s" style="left:36px;top:-64px;--dx:-18px;--dy:-58px;animation-delay:1.9s">✧</span>
-      <span class="rb-s" style="right:38px;top:-76px;--dx:24px;--dy:-54px;animation-delay:1.35s">✦</span>
-      <span class="rb-s" style="left:10px;top:6px;--dx:-30px;--dy:-30px;animation-delay:2.2s">✧</span>
-      <span class="rb-s" style="right:6px;top:0px;--dx:32px;--dy:-26px;animation-delay:1.7s">✧</span>
+    <div class="intro-panel top"></div>
+    <div class="intro-panel bottom"></div>
+    <div class="intro-center">
+      <div class="ic-eyebrow">THE WEDDING OF</div>
+      <div class="ic-names">Seokyong<span>&amp;</span>Eunhye</div>
+      <div class="ic-rule"></div>
+      <div class="ic-date">2026 · 09 · 19</div>
+      <div class="ic-sub">윤석용 · 홍은혜</div>
     </div>
-    <p class="intro-hint">TOUCH TO OPEN</p>
+    <p class="intro-hint">TOUCH TO ENTER</p>
   </div>
 
   <canvas id="petals"></canvas>
@@ -560,30 +532,15 @@ document.querySelectorAll('img.ph').forEach(function(img){
   }
 });
 
-/* ── 인트로: 반지 박스 열기 ── */
+/* ── 인트로 커버 열기 ── */
 var boxOpened = false;
 function openBox(){
   if(boxOpened) return; boxOpened = true;
-  document.getElementById('ringbox').classList.add('open');
-  setTimeout(function(){ document.getElementById('intro').classList.add('hide'); }, 3400);
+  document.getElementById('intro').classList.add('open');
+  setTimeout(function(){ document.getElementById('intro').classList.add('hide'); }, 1500);
 }
 document.getElementById('intro').addEventListener('click', openBox);
-setTimeout(openBox, 8000); // 8초 동안 터치 없으면 자동 오픈
-
-/* ── 인트로 박스에서 떠오르는 두 반지 ── */
-(function(){
-  var g = driveToImg(PHOTOS.ringGroom), b = driveToImg(PHOTOS.ringBride);
-  if(!g || !b) return;
-  var box = document.getElementById('ringbox'),
-      ig = document.querySelector('.rb-fring.groom'),
-      ib = document.querySelector('.rb-fring.bride'),
-      loaded = 0;
-  function ok(){ if(++loaded === 2) box.classList.add('has-photo'); }
-  function fail(){ box.classList.remove('has-photo'); ig.style.display = ib.style.display = 'none'; }
-  ig.onload = ok; ib.onload = ok;
-  ig.onerror = fail; ib.onerror = fail;
-  ig.src = g; ib.src = b;
-})();
+setTimeout(openBox, 7000); // 7초 동안 터치 없으면 자동 오픈
 
 /* ── 샴페인 더스트 파티클 ── */
 (function(){
