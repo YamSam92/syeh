@@ -42,9 +42,15 @@ section{padding:76px 28px;position:relative}
 /* ── 인트로: 에디토리얼 커버 (모던) ── */
 #intro{position:fixed;inset:0;z-index:100;overflow:hidden;cursor:pointer}
 #intro.hide{visibility:hidden}
-.intro-panel{position:absolute;left:0;width:100%;height:50.4%;background:linear-gradient(180deg,#1c1a17,#26221b);z-index:1;transition:transform 1.25s cubic-bezier(.76,0,.24,1)}
-.intro-panel.top{top:0;box-shadow:0 1px 0 rgba(201,184,145,.28)}
-.intro-panel.bottom{bottom:0;box-shadow:0 -1px 0 rgba(201,184,145,.28)}
+.intro-panel{position:absolute;left:0;width:100%;height:50.4%;overflow:hidden;background:linear-gradient(180deg,#1c1a17,#26221b);z-index:1;transition:transform 1.25s cubic-bezier(.76,0,.24,1)}
+.intro-panel.top{top:0;box-shadow:0 1px 0 rgba(201,184,145,.3)}
+.intro-panel.bottom{bottom:0;box-shadow:0 -1px 0 rgba(201,184,145,.3)}
+.intro-panel .pimg{position:absolute;left:0;width:100%;height:100vh;background-position:center;background-size:cover;background-repeat:no-repeat}
+.intro-panel.top .pimg{top:0}
+.intro-panel.bottom .pimg{bottom:0}
+.intro-panel::after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none}
+#intro.has-photo .intro-panel.top::after{background:linear-gradient(180deg,rgba(22,20,16,.6),rgba(22,20,16,.32))}
+#intro.has-photo .intro-panel.bottom::after{background:linear-gradient(180deg,rgba(22,20,16,.32),rgba(22,20,16,.66))}
 #intro.open .intro-panel.top{transform:translateY(-100%)}
 #intro.open .intro-panel.bottom{transform:translateY(100%)}
 .intro-center{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 30px;pointer-events:none;transition:opacity .6s ease,transform .9s ease}
@@ -237,8 +243,8 @@ footer .thanks{font-size:12.5px;color:var(--sub);margin:16px 0 34px;line-height:
 
   <!-- 인트로: 에디토리얼 커버 -->
   <div id="intro">
-    <div class="intro-panel top"></div>
-    <div class="intro-panel bottom"></div>
+    <div class="intro-panel top"><span class="pimg"></span></div>
+    <div class="intro-panel bottom"><span class="pimg"></span></div>
     <div class="intro-center">
       <div class="ic-eyebrow">THE WEDDING OF</div>
       <div class="ic-names">Seokyong<span>&amp;</span>Eunhye</div>
@@ -484,11 +490,11 @@ const WEDDING = new Date(2026, 8, 19, 14, 0, 0); // 2026년 9월 19일 오후 2�
 //    (사진 우클릭 → 공유 → "링크가 있는 모든 사용자" 필수!)
 //    일반 이미지 주소(https://...jpg)나 상대경로(photos/main.jpg)도 됩니다.
 const PHOTOS = {
-  main: '',                          // 메인 사진
-  ringGroom: '',                     // 신랑 반지 (인트로, 배경제거 PNG)
-  ringBride: '',                     // 신부 반지 (인트로, 배경제거 PNG)
-  snap: '',                          // 게스트스냅 섹션 사진
-  gallery: ['', '', '', '', '', '']  // 갤러리 사진 1~6
+  main: 'https://d8j0ntlcm91z4.cloudfront.net/user_3Et7kTot8kEpUNSTzwOv3o9WCGx/hf_20260708_055030_8fdeeec6-e496-408c-923e-13fb0c869463.png',
+  ringGroom: '',
+  ringBride: '',
+  snap: 'https://d8j0ntlcm91z4.cloudfront.net/user_3Et7kTot8kEpUNSTzwOv3o9WCGx/hf_20260708_055047_24bbb446-81c1-454a-8132-bd4f1502e3e6.png',
+  gallery: ['https://d8j0ntlcm91z4.cloudfront.net/user_3Et7kTot8kEpUNSTzwOv3o9WCGx/hf_20260708_055041_1dd239e9-e31e-49ea-b3f7-a6de298c916c.png', 'https://d8j0ntlcm91z4.cloudfront.net/user_3Et7kTot8kEpUNSTzwOv3o9WCGx/hf_20260708_055043_e8487aad-d56a-4d9e-a32e-d1dfecf8f108.png', 'https://d8j0ntlcm91z4.cloudfront.net/user_3Et7kTot8kEpUNSTzwOv3o9WCGx/hf_20260708_055045_ef0eeb53-7639-4430-9c24-550cc15f2b59.png', 'https://d8j0ntlcm91z4.cloudfront.net/user_3Et7kTot8kEpUNSTzwOv3o9WCGx/hf_20260708_055047_24bbb446-81c1-454a-8132-bd4f1502e3e6.png', 'https://d8j0ntlcm91z4.cloudfront.net/user_3Et7kTot8kEpUNSTzwOv3o9WCGx/hf_20260708_055049_5bf7bc9f-c021-4525-9433-1651394e5c3f.png', 'https://d8j0ntlcm91z4.cloudfront.net/user_3Et7kTot8kEpUNSTzwOv3o9WCGx/hf_20260708_055050_1e15d021-a6d5-4116-a923-b15725421eba.png']
 };
 
 // 🗺️ 지도 검색어
@@ -549,28 +555,61 @@ function openBox(){
 document.getElementById('intro').addEventListener('click', openBox);
 setTimeout(openBox, 7000); // 7초 동안 터치 없으면 자동 오픈
 
-/* ── 샴페인 더스트 파티클 ── */
+/* ── 오프닝 커버 사진(상하 반쪽) ── */
+(function(){
+  var mi = driveToImg(PHOTOS.main);
+  if(!mi) return;
+  var intro = document.getElementById('intro');
+  intro.querySelectorAll('.pimg').forEach(function(p){ p.style.backgroundImage = 'url("'+mi+'")'; });
+  intro.classList.add('has-photo');
+})();
+
+/* ── 가을 파티클: 샴페인 더스트 + 은은한 낙엽 ── */
 (function(){
   var cv = document.getElementById('petals'), ctx = cv.getContext('2d');
-  var W, H, dust = [];
+  var W, H, dust = [], leaves = [];
   function resize(){ W = cv.width = innerWidth; H = cv.height = innerHeight; }
   resize(); addEventListener('resize', resize);
-  function make(){
-    return { x: Math.random()*W, y: H + 10,
-      r: 0.8 + Math.random()*1.8,
-      vy: -(0.15 + Math.random()*0.35), vx: 0.1 - Math.random()*0.2,
-      sway: Math.random()*Math.PI*2, swaySpd: 0.004 + Math.random()*0.01,
-      op: 0.15 + Math.random()*0.35 };
+  var dustCol = ['#C9B891','#D8B27E','#CBA96B'];
+  function mkDust(){
+    return { x: Math.random()*W, y: H + 10, r: 0.8 + Math.random()*1.7,
+      vy: -(0.14 + Math.random()*0.32), vx: 0.1 - Math.random()*0.2,
+      sway: Math.random()*6.283, swaySpd: 0.004 + Math.random()*0.01,
+      op: 0.12 + Math.random()*0.3, c: dustCol[(Math.random()*dustCol.length)|0] };
   }
-  for(var i=0;i<34;i++){ var p=make(); p.y = Math.random()*H; dust.push(p); }
+  var leafCol = ['#C7924A','#B87333','#CBA85E','#A9633A'];
+  function mkLeaf(reset){
+    return { x: Math.random()*W, y: reset ? -20 : Math.random()*H,
+      s: 6 + Math.random()*6, vy: 0.32 + Math.random()*0.5, vx: 0.3 - Math.random()*0.6,
+      rot: Math.random()*6.283, rotSpd: (0.012 - Math.random()*0.024),
+      sway: Math.random()*6.283, swaySpd: 0.006 + Math.random()*0.012,
+      op: 0.13 + Math.random()*0.2, c: leafCol[(Math.random()*leafCol.length)|0] };
+  }
+  for(var i=0;i<26;i++){ var p=mkDust(); p.y = Math.random()*H; dust.push(p); }
+  for(var j=0;j<7;j++){ leaves.push(mkLeaf(false)); }
+  function drawLeaf(l){
+    ctx.save(); ctx.translate(l.x, l.y); ctx.rotate(l.rot);
+    ctx.globalAlpha = l.op; ctx.fillStyle = l.c;
+    ctx.beginPath(); ctx.moveTo(0, -l.s);
+    ctx.quadraticCurveTo(l.s*0.72, -l.s*0.2, 0, l.s);
+    ctx.quadraticCurveTo(-l.s*0.72, -l.s*0.2, 0, -l.s);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(90,60,30,'+(l.op*0.85)+')'; ctx.lineWidth = 0.6;
+    ctx.beginPath(); ctx.moveTo(0, -l.s); ctx.lineTo(0, l.s); ctx.stroke();
+    ctx.restore();
+  }
   function draw(){
     ctx.clearRect(0,0,W,H);
     dust.forEach(function(p){
       p.sway += p.swaySpd; p.x += p.vx + Math.sin(p.sway)*0.25; p.y += p.vy;
-      if(p.y < -10){ Object.assign(p, make()); }
-      ctx.globalAlpha = p.op;
-      ctx.fillStyle = '#C9B891';
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+      if(p.y < -10){ Object.assign(p, mkDust()); }
+      ctx.globalAlpha = p.op; ctx.fillStyle = p.c;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832); ctx.fill();
+    });
+    leaves.forEach(function(l){
+      l.sway += l.swaySpd; l.x += l.vx + Math.sin(l.sway)*0.5; l.y += l.vy; l.rot += l.rotSpd;
+      if(l.y > H + 24){ Object.assign(l, mkLeaf(true)); }
+      drawLeaf(l);
     });
     ctx.globalAlpha = 1;
     requestAnimationFrame(draw);
