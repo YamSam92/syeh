@@ -47,6 +47,8 @@ section{padding:76px 28px;position:relative}
 .splash-script .wline.w1{animation:spWrite 1.5s .3s cubic-bezier(.4,.05,.55,.95) forwards}
 .splash-script .wline.w2{animation:spWrite 1.3s 1.85s cubic-bezier(.4,.05,.55,.95) forwards}
 @keyframes spWrite{from{max-width:0}to{max-width:340px}}
+@media (prefers-reduced-motion: reduce){.splash-script .wline{max-width:340px;animation:none}}
+.splash-script .wline.force{max-width:340px;animation:none}
 
 /* ── 파티클 캔버스 (샴페인 더스트) ── */
 #petals{position:fixed;inset:0;pointer-events:none;z-index:50}
@@ -672,6 +674,11 @@ document.querySelectorAll('img.ph').forEach(function(img){
   var el = document.getElementById('intro');
   function hide(){ el.classList.add('hide'); }
   el.addEventListener('click', hide);
+  setTimeout(function(){
+    document.querySelectorAll('.wline').forEach(function(l){
+      if(l.getBoundingClientRect().width < 5) l.classList.add('force');
+    });
+  }, 1200);
   setTimeout(hide, 3800);
 })();
 
