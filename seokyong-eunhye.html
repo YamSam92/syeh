@@ -42,8 +42,11 @@ section{padding:76px 28px;position:relative}
 /* ── 스플래시 ── */
 #intro{position:fixed;inset:0;background:#FBF9F4;z-index:100;display:flex;justify-content:center;align-items:center;transition:opacity 1s ease,visibility 1s;cursor:pointer}
 #intro.hide{opacity:0;visibility:hidden}
-.splash-script{font-family:'Great Vibes',cursive;font-size:46px;line-height:1.35;color:#4C5145;text-align:center;opacity:0;animation:spFade 1.6s .2s forwards}
-@keyframes spFade{to{opacity:1}}
+.splash-script{font-family:'Great Vibes',cursive;font-size:46px;line-height:1.35;color:#4C5145;text-align:center}
+.splash-script .wline{display:block;overflow:hidden;white-space:nowrap;max-width:0}
+.splash-script .wline.w1{animation:spWrite 1.5s .3s cubic-bezier(.4,.05,.55,.95) forwards}
+.splash-script .wline.w2{animation:spWrite 1.3s 1.85s cubic-bezier(.4,.05,.55,.95) forwards}
+@keyframes spWrite{from{max-width:0}to{max-width:340px}}
 
 /* ── 파티클 캔버스 (샴페인 더스트) ── */
 #petals{position:fixed;inset:0;pointer-events:none;z-index:50}
@@ -230,9 +233,7 @@ footer .thanks{font-size:12.5px;color:var(--sub);margin:16px 0 34px;line-height:
 .env-flap::before,.env-flap::after{content:'';position:absolute;top:-1px;width:75%;height:1px;background:#E2D8C4}
 .env-flap::before{left:-6%;transform:rotate(22deg);transform-origin:left top}
 .env-flap::after{right:-6%;transform:rotate(-22deg);transform-origin:right top}
-.wax{position:absolute;left:50%;bottom:52px;transform:translateX(-50%);width:76px;height:76px;border-radius:47% 53% 51% 49%/52% 48% 52% 48%;background:radial-gradient(circle at 38% 32%,#A34A44,#7C2E2A 58%,#5F1F1D);box-shadow:0 5px 14px rgba(95,31,29,.4),inset 0 2px 5px rgba(255,255,255,.22),inset 0 -4px 8px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center}
-.wax::before{content:'';position:absolute;inset:9px;border-radius:50%;border:1px solid rgba(255,226,208,.4)}
-.wax i{font-family:'Fraunces',serif;font-style:normal;font-size:16px;letter-spacing:1px;color:rgba(255,232,215,.92);text-shadow:0 1px 2px rgba(0,0,0,.45)}
+.wax-img{position:absolute;left:50%;bottom:40px;transform:translateX(-50%) rotate(-4deg);width:104px;height:auto;filter:drop-shadow(0 7px 14px rgba(95,31,29,.38))}
 /* ── 시 인용 ── */
 .quote-sec{padding:86px 30px;text-align:center;background:#FCFAF6}
 .quote-body{font-size:15px;line-height:2.3;color:var(--ink);font-weight:300}
@@ -284,7 +285,7 @@ footer .thanks{font-size:12.5px;color:var(--sub);margin:16px 0 34px;line-height:
 <div id="wrap">
 
   <!-- 스플래시 -->
-  <div id="intro"><div class="splash-script">We're getting<br>Married!</div></div>
+  <div id="intro"><div class="splash-script"><span class="wline w1">We're getting</span><span class="wline w2">Married!</span></div></div>
 
   <canvas id="petals"></canvas>
 
@@ -298,7 +299,7 @@ footer .thanks{font-size:12.5px;color:var(--sub);margin:16px 0 34px;line-height:
       <div class="env-date"><span>OCT</span><b>24</b><span>2026</span></div>
       <p class="env-info">2026년 10월 24일 토요일 오후 2시<br>BMK 웨딩홀 5층 하모니볼룸홀</p>
       <div class="env-flap"></div>
-      <div class="wax"><i>10.24</i></div>
+      <img class="wax-img" src="https://d8j0ntlcm91z4.cloudfront.net/user_3Et7kTot8kEpUNSTzwOv3o9WCGx/hf_20260727_041459_18e45057-8f1b-4089-aff0-3342692e915c.png" alt="10.24 실링 왁스">
     </div>
     <div class="scroll-hint">⌄</div>
   </section>
@@ -671,7 +672,7 @@ document.querySelectorAll('img.ph').forEach(function(img){
   var el = document.getElementById('intro');
   function hide(){ el.classList.add('hide'); }
   el.addEventListener('click', hide);
-  setTimeout(hide, 2400);
+  setTimeout(hide, 3800);
 })();
 
 /* ── 가을 파티클: 샴페인 더스트 + 은은한 낙엽 ── */
