@@ -238,34 +238,24 @@ footer .thanks{font-size:12.5px;color:var(--sub);margin:16px 0 34px;line-height:
 /* ── 봉투 히어로(개봉 애니메이션) ── */
 .env-sec{height:100vh;height:100svh;background:var(--soft)}
 .env-sticky{position:relative;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:70px 26px 40px}
-.env-stage{position:relative;width:100%;max-width:340px;height:600px;cursor:pointer;perspective:900px;-webkit-perspective:900px}
-.letter{position:absolute;left:10px;right:10px;top:0;background:#FFFFFF;border:1px solid var(--line);box-shadow:0 12px 30px rgba(101,154,181,.12);padding:18px 18px 24px;text-align:center;z-index:1;transform:translateY(392px) scale(.38);transform-origin:center top;will-change:transform}
+.hero-card{width:100%;max-width:340px;background:#FFFFFF;border:1px solid var(--line);box-shadow:0 12px 30px rgba(101,154,181,.12);padding:18px 18px 24px;text-align:center;opacity:0;transform:translateY(28px) scale(.985);transition:opacity 1s var(--ease-out) .15s,transform 1s var(--ease-out) .15s;will-change:transform}
+.hero-card.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.hero-card{transform:none;transition:opacity .4s ease}}
 .lt-photo{width:100%;aspect-ratio:4/4.4;object-fit:cover;display:block;border-radius:150px 150px 6px 6px}
 .env-script{font-family:'Great Vibes',cursive;font-size:27px;color:var(--ink);margin:16px 0 4px}
 .env-names{font-size:18px;letter-spacing:3px;color:var(--ink);font-weight:700}
 .env-names .amp{font-family:'Fraunces',serif;font-style:italic;color:var(--sub);font-size:18px;margin:0 9px;font-weight:400}
 .env-info{margin-top:12px;font-size:12px;color:var(--sub);line-height:1.95;font-weight:300}
-.env-pocket{position:absolute;left:0;right:0;bottom:0;height:212px;background:linear-gradient(180deg,#F3F0E8,#EBE7DB);border:1px solid #E0DBCC;border-radius:4px;z-index:3;box-shadow:0 14px 30px rgba(101,154,181,.12);overflow:hidden}
-.env-pocket::before,.env-pocket::after{content:'';position:absolute;top:-1px;width:75%;height:1px;background:#DAD4C3}
-.env-pocket::before{left:-6%;transform:rotate(24deg);transform-origin:left top}
-.env-pocket::after{right:-6%;transform:rotate(-24deg);transform-origin:right top}
-.env-flapv{position:absolute;left:0;right:0;bottom:calc(212px - 108px);height:108px;background:linear-gradient(180deg,#F6F3EC,#EEEADD);border:1px solid #E0DBCC;border-top:none;clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top center;backface-visibility:hidden;-webkit-backface-visibility:hidden;z-index:4;will-change:transform}
-.wax-img{position:absolute;left:50%;bottom:74px;transform:translateX(-50%) rotate(-4deg);width:88px;height:auto;z-index:5;filter:drop-shadow(0 6px 12px rgba(101,80,60,.3))}
 /* ── 시 인용 ── */
 .quote-sec{padding:86px 30px;text-align:center;background:#FCFAF6}
 .quote-body{font-size:15px;line-height:2.3;color:var(--ink);font-weight:300}
 .quote-from{margin-top:26px;font-size:11.5px;letter-spacing:3px;color:var(--accent)}
 /* ── 안내 탭 ── */
-.tab-btns{display:flex;gap:8px;margin-bottom:16px}
-.tab-btn{flex:1;padding:13px 0;border:1px solid var(--line);background:#fff;border-radius:2px;font-family:inherit;font-size:12.5px;color:var(--sub);cursor:pointer;transition:.25s}
-.tab-btn.on{background:var(--ink);border-color:var(--ink);color:#fff}
-.tab-panel{display:none;background:#fff;border:1px solid var(--line);border-radius:4px;padding:30px 24px;text-align:center;font-size:13px;color:var(--ink);line-height:2.05;font-weight:300}
-.tab-panel.on{display:block}
 
 
 /* ── 프레스 피드백 (Emil: buttons must feel responsive) ── */
-.contact-btn,.copy-btn,.copy-mini,.map-btns a,.gb-submit,.rv-opt,.share-btn,.tab-btn,.acc-head{transition:transform .16s ease-out,background .25s,color .25s}
-.contact-btn:active,.copy-btn:active,.copy-mini:active,.map-btns a:active,.gb-submit:active,.rv-opt:active,.share-btn:active,.tab-btn:active,.acc-head:active{transform:scale(.97)}
+.contact-btn,.copy-btn,.copy-mini,.map-btns a,.gb-submit,.rv-opt,.share-btn,.acc-head{transition:transform .16s ease-out,background .25s,color .25s}
+.contact-btn:active,.copy-btn:active,.copy-mini:active,.map-btns a:active,.gb-submit:active,.rv-opt:active,.share-btn:active,.acc-head:active{transform:scale(.97)}
 </style>
 </head>
 <body>
@@ -279,16 +269,11 @@ footer .thanks{font-size:12.5px;color:var(--sub);margin:16px 0 34px;line-height:
   <!-- 히어로 -->
   <section class="env-sec">
     <div class="env-sticky">
-    <div class="env-stage" id="envStage">
-      <div class="letter">
-        <img class="lt-photo" src="photos/main.jpg" alt="석용과 은혜">
-        <div class="env-script">The Wedding of</div>
-        <div class="hero-names env-names">윤석용<span class="amp">&amp;</span>홍은혜</div>
-        <p class="env-info">2026년 10월 24일 토요일 오후 2시<br>BMK 웨딩홀 5층 하모니볼룸홀</p>
-      </div>
-      <div class="env-pocket"></div>
-      <div class="env-flapv"></div>
-      <img class="wax-img" src="https://d8j0ntlcm91z4.cloudfront.net/user_3Et7kTot8kEpUNSTzwOv3o9WCGx/hf_20260727_041459_18e45057-8f1b-4089-aff0-3342692e915c.png" alt="10.24 실링 왁스">
+    <div class="hero-card">
+      <img class="lt-photo" src="photos/main.jpg" alt="석용과 은혜">
+      <div class="env-script">The Wedding of</div>
+      <div class="hero-names env-names">윤석용<span class="amp">&amp;</span>홍은혜</div>
+      <p class="env-info">2026년 10월 24일 토요일 오후 2시<br>BMK 웨딩홀 5층 하모니볼룸홀</p>
     </div>
     <div class="scroll-hint">⌄</div>
     </div>
@@ -356,22 +341,6 @@ footer .thanks{font-size:12.5px;color:var(--sub);margin:16px 0 34px;line-height:
       <div class="g-item"><img class="ph" data-key="10" data-label="PHOTO 10" alt="갤러리 10"></div>
     </div>
     <div class="g-dots" id="gdots"></div>
-  </section>
-
-  <!-- 안내 -->
-  <section class="info-sec" style="background:var(--soft)">
-    <div class="reveal"><div class="sec-label">INFORMATION</div>
-    <div class="sec-title">안내 말씀</div></div>
-    <div class="tab-btns reveal d1">
-      <button class="tab-btn on" onclick="showTab(0,this)">포토부스</button>
-      <button class="tab-btn" onclick="showTab(1,this)">주차안내</button>
-      <button class="tab-btn" onclick="showTab(2,this)">답례품</button>
-    </div>
-    <div class="tab-panels reveal d2">
-      <div class="tab-panel on">소중한 날을 기록할 수 있도록<br>포토부스를 준비했습니다.<br><br>신랑 · 신부와 함께 사진을 찍고<br>한 장은 방명록에,<br>한 장은 추억으로 간직해 주세요.</div>
-      <div class="tab-panel">BMK 웨딩홀 건물 내<br>무료 주차가 가능합니다.<br><br>주차 후 5층 하모니볼룸홀로<br>올라와 주세요.</div>
-      <div class="tab-panel">예식 후 감사의 마음을 담아<br>작은 답례품을 준비할 예정입니다.<br><br>따뜻한 마음으로 받아주세요.</div>
-    </div>
   </section>
 
   <!-- 오시는 길 -->
@@ -571,59 +540,13 @@ document.querySelectorAll('img.ph').forEach(function(img){
   el.addEventListener('click', function(){
     el.classList.add('hide');
     // TODO: BGM 재생 시작 지점
-    setTimeout(function(){ if(typeof playEnvOpen === 'function') playEnvOpen(); }, 650);
+    var c = document.querySelector('.hero-card');
+    if(c) c.classList.add('in');
+    var h = document.querySelector('.scroll-hint');
+    if(h) setTimeout(function(){ h.classList.add('on'); }, 1100);
   });
 })();
 
-/* ── 봉투 개봉: 스플래시 탭 후 자동 재생 (시간 기반) ── */
-var playEnvOpen;
-(function(){
-  var sec = document.querySelector('.env-sec'), stage = document.getElementById('envStage');
-  if(!sec || !stage) return;
-  var letter = stage.querySelector('.letter'),
-      flap   = stage.querySelector('.env-flapv'),
-      wax    = stage.querySelector('.wax-img'),
-      hint   = sec.querySelector('.scroll-hint');
-  function clamp(v){ return v < 0 ? 0 : v > 1 ? 1 : v; }
-  function lerp(a,b,t){ return a + (b - a) * t; }
-  function ease(t){ return t < .5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2; }
-  function render(p){
-    var pf = ease(clamp(p / 0.4));
-    flap.style.transform = 'rotateX(' + (pf * 180) + 'deg)';
-    flap.style.zIndex = pf > 0.55 ? 2 : 4;
-    wax.style.opacity = 1 - clamp(p / 0.3);
-    var pl = clamp((p - 0.28) / 0.72), ty, sc;
-    if(pl < 0.62){
-      var t = ease(pl / 0.62);
-      ty = lerp(392, -64, t); sc = lerp(0.38, 0.84, t);
-      letter.style.zIndex = 1;
-    } else {
-      var t2 = ease((pl - 0.62) / 0.38);
-      ty = lerp(-64, 0, t2); sc = lerp(0.84, 1, t2);
-      letter.style.zIndex = 6;
-    }
-    letter.style.transform = 'translateY(' + ty + 'px) scale(' + sc + ')';
-  }
-  var opened = false, playing = false;
-  function done(){ playing = false; opened = true; if(hint) hint.classList.add('on'); }
-  playEnvOpen = function(){
-    if(opened || playing) return;
-    if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches){
-      render(1); done(); return;
-    }
-    playing = true;
-    var DUR = 3000, t0 = null;
-    function frame(ts){
-      if(t0 === null) t0 = ts;
-      var p = clamp((ts - t0) / DUR);
-      render(p);
-      if(p < 1){ requestAnimationFrame(frame); } else { done(); }
-    }
-    requestAnimationFrame(frame);
-  };
-  stage.addEventListener('click', function(){ playEnvOpen(); });
-  render(0);
-})();
 
 
 /* ── 가을 파티클: 샴페인 더스트 + 은은한 낙엽 ── */
@@ -899,12 +822,6 @@ function sendRsvp(){
   el.addEventListener('click', burst);
 })();
 
-/* ── 안내 탭 ── */
-function showTab(i, btn){
-  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('on'); });
-  btn.classList.add('on');
-  document.querySelectorAll('.tab-panel').forEach(function(p,j){ p.classList.toggle('on', i===j); });
-}
 </script>
 </body>
 </html>
