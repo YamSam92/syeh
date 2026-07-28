@@ -77,7 +77,8 @@ section{padding:76px 28px;position:relative}
 .hero-names{font-size:21px;color:var(--ink);letter-spacing:4px;font-weight:700}
 .hero-names .amp{font-family:'Fraunces',serif;font-style:italic;color:var(--accent);font-size:22px;margin:0 12px;font-weight:400}
 .hero-venue{margin-top:18px;font-size:13px;color:var(--sub);line-height:2;font-weight:300}
-.scroll-hint{margin-top:38px;color:var(--accent);font-size:18px;animation:bob 1.8s infinite}
+.scroll-hint{margin-top:38px;color:var(--accent);font-size:18px;animation:bob 1.8s infinite;opacity:0;transition:opacity .8s ease .2s}
+.scroll-hint.on{opacity:1}
 @keyframes bob{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(8px);opacity:1}}
 
 /* ── 스크롤 리빌 ── */
@@ -235,8 +236,8 @@ footer .thanks{font-size:12.5px;color:var(--sub);margin:16px 0 34px;line-height:
 @keyframes heartUp{0%{opacity:0;transform:translateY(0) scale(.5) rotate(0deg)}15%{opacity:1}100%{opacity:0;transform:translateY(-124px) scale(1.1) rotate(var(--hr))}}
 
 /* ── 봉투 히어로(개봉 애니메이션) ── */
-.env-sec{height:230vh;height:230svh;background:var(--soft)}
-.env-sticky{position:sticky;top:0;height:100vh;height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:70px 26px 40px}
+.env-sec{height:100vh;height:100svh;background:var(--soft)}
+.env-sticky{position:relative;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:70px 26px 40px}
 .env-stage{position:relative;width:100%;max-width:340px;height:600px;cursor:pointer;perspective:900px;-webkit-perspective:900px}
 .letter{position:absolute;left:10px;right:10px;top:0;background:#FFFFFF;border:1px solid var(--line);box-shadow:0 12px 30px rgba(101,154,181,.12);padding:18px 18px 24px;text-align:center;z-index:1;transform:translateY(392px) scale(.38);transform-origin:center top;will-change:transform}
 .lt-photo{width:100%;aspect-ratio:4/4.4;object-fit:cover;display:block;border-radius:150px 150px 6px 6px}
@@ -570,10 +571,12 @@ document.querySelectorAll('img.ph').forEach(function(img){
   el.addEventListener('click', function(){
     el.classList.add('hide');
     // TODO: BGM 재생 시작 지점
+    setTimeout(function(){ if(typeof playEnvOpen === 'function') playEnvOpen(); }, 650);
   });
 })();
 
-/* ── 봉투 개봉: 스크롤 스크럽 (진행도에 따라 열림) ── */
+/* ── 봉투 개봉: 스플래시 탭 후 자동 재생 (시간 기반) ── */
+var playEnvOpen;
 (function(){
   var sec = document.querySelector('.env-sec'), stage = document.getElementById('envStage');
   if(!sec || !stage) return;
@@ -584,19 +587,11 @@ document.querySelectorAll('img.ph').forEach(function(img){
   function clamp(v){ return v < 0 ? 0 : v > 1 ? 1 : v; }
   function lerp(a,b,t){ return a + (b - a) * t; }
   function ease(t){ return t < .5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2; }
-  var ticking = false;
-  function update(){
-    ticking = false;
-    var range = sec.offsetHeight - window.innerHeight;
-    if(range < 1) range = 1;
-    var p = clamp((window.scrollY - sec.offsetTop) / range);
-    // 1) 플랩: 진행 0~40%에서 젖혀짐
+  function render(p){
     var pf = ease(clamp(p / 0.4));
     flap.style.transform = 'rotateX(' + (pf * 180) + 'deg)';
     flap.style.zIndex = pf > 0.55 ? 2 : 4;
-    // 2) 왁스: 초반에 페이드
     wax.style.opacity = 1 - clamp(p / 0.3);
-    // 3) 편지: 28%부터 봉투 밖으로 → 위로 완전히 나온 뒤 앞으로 안착
     var pl = clamp((p - 0.28) / 0.72), ty, sc;
     if(pl < 0.62){
       var t = ease(pl / 0.62);
@@ -608,16 +603,26 @@ document.querySelectorAll('img.ph').forEach(function(img){
       letter.style.zIndex = 6;
     }
     letter.style.transform = 'translateY(' + ty + 'px) scale(' + sc + ')';
-    if(hint) hint.style.opacity = p > 0.5 ? 0 : 1;
   }
-  function onScroll(){ if(!ticking){ ticking = true; requestAnimationFrame(update); } }
-  window.addEventListener('scroll', onScroll, {passive:true});
-  window.addEventListener('resize', onScroll, {passive:true});
-  stage.addEventListener('click', function(){
-    var range = sec.offsetHeight - window.innerHeight;
-    window.scrollTo({ top: sec.offsetTop + range, behavior: 'smooth' });
-  });
-  update();
+  var opened = false, playing = false;
+  function done(){ playing = false; opened = true; if(hint) hint.classList.add('on'); }
+  playEnvOpen = function(){
+    if(opened || playing) return;
+    if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches){
+      render(1); done(); return;
+    }
+    playing = true;
+    var DUR = 3000, t0 = null;
+    function frame(ts){
+      if(t0 === null) t0 = ts;
+      var p = clamp((ts - t0) / DUR);
+      render(p);
+      if(p < 1){ requestAnimationFrame(frame); } else { done(); }
+    }
+    requestAnimationFrame(frame);
+  };
+  stage.addEventListener('click', function(){ playEnvOpen(); });
+  render(0);
 })();
 
 
