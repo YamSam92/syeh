@@ -35,7 +35,7 @@
 html{scroll-behavior:smooth}
 body{
   font-family:'Pretendard',sans-serif;
-  background:#EFEDE7; color:var(--ink); line-height:1.75;
+  background:#EFEDE7; color:var(--ink); line-height:1.75; word-break:keep-all;
   display:flex; justify-content:center;
 }
 #wrap{width:100%;max-width:430px;background:var(--bg);min-height:100vh;position:relative;overflow-x:clip;box-shadow:0 0 40px rgba(0,0,0,.08)}
@@ -46,13 +46,24 @@ section{padding:76px 28px;position:relative}
 .sec-sub{font-size:12.5px;color:var(--sub);text-align:center;margin-bottom:40px}
 .divider{width:1px;height:44px;background:var(--line);margin:26px auto}
 
-/* ── 스플래시 ── */
-#intro{position:fixed;inset:0;background:var(--bg);z-index:100;display:flex;justify-content:center;align-items:center;transition:opacity .8s ease,visibility .8s;cursor:pointer}
+/* ── 스플래시: 마스크 필기 리빌 (탭해야 진입) ── */
+#intro{position:fixed;inset:0;background:var(--bg);z-index:100;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:36px;transition:opacity .7s ease,visibility .7s;cursor:pointer}
 #intro.hide{opacity:0;visibility:hidden}
-.splash-script{font-family:'Great Vibes',cursive;font-size:46px;line-height:1.35;color:var(--ink);text-align:center;opacity:0;animation:spIn 1.3s var(--ease-out) .15s forwards}
-@keyframes spIn{from{opacity:0;transform:translateY(14px) scale(.98);filter:blur(8px)}to{opacity:1;transform:none;filter:blur(0)}}
-@media (prefers-reduced-motion: reduce){.splash-script{animation:spFadeOnly .6s ease forwards}}
-@keyframes spFadeOnly{to{opacity:1}}
+#intro:active .splash-script{transform:scale(.99)}
+.splash-script{font-family:'Great Vibes',cursive;font-size:46px;line-height:1.35;color:var(--ink);text-align:center;transition:transform .16s ease-out}
+.splash-script .wline{display:block;
+  -webkit-mask-image:linear-gradient(100deg,#000 46%,transparent 54%);mask-image:linear-gradient(100deg,#000 46%,transparent 54%);
+  -webkit-mask-size:240% 100%;mask-size:240% 100%;
+  -webkit-mask-position:100% 0;mask-position:100% 0}
+.splash-script .w1{animation:penWrite 1.7s cubic-bezier(.45,.05,.35,1) .3s forwards}
+.splash-script .w2{animation:penWrite 1.4s cubic-bezier(.45,.05,.35,1) 1.9s forwards}
+@keyframes penWrite{to{-webkit-mask-position:0% 0;mask-position:0% 0}}
+.splash-hint{font-size:10px;letter-spacing:5px;color:var(--sub);opacity:0;animation:hintIn 2.4s ease 3.5s infinite}
+@keyframes hintIn{0%,100%{opacity:.25}50%{opacity:.85}}
+@media (prefers-reduced-motion: reduce){
+  .splash-script .wline{-webkit-mask-image:none;mask-image:none;animation:none}
+  .splash-hint{animation:none;opacity:.7}
+}
 
 /* ── 파티클 캔버스 (샴페인 더스트) ── */
 #petals{position:fixed;inset:0;pointer-events:none;z-index:50}
@@ -224,8 +235,8 @@ footer .thanks{font-size:12.5px;color:var(--sub);margin:16px 0 34px;line-height:
 @keyframes heartUp{0%{opacity:0;transform:translateY(0) scale(.5) rotate(0deg)}15%{opacity:1}100%{opacity:0;transform:translateY(-124px) scale(1.1) rotate(var(--hr))}}
 
 /* ── 봉투 히어로(개봉 애니메이션) ── */
-.env-sec{height:230vh;background:var(--soft)}
-.env-sticky{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:70px 26px 40px}
+.env-sec{height:230vh;height:230svh;background:var(--soft)}
+.env-sticky{position:sticky;top:0;height:100vh;height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:70px 26px 40px}
 .env-stage{position:relative;width:100%;max-width:340px;height:600px;cursor:pointer;perspective:900px;-webkit-perspective:900px}
 .letter{position:absolute;left:10px;right:10px;top:0;background:#FFFFFF;border:1px solid var(--line);box-shadow:0 12px 30px rgba(101,154,181,.12);padding:18px 18px 24px;text-align:center;z-index:1;transform:translateY(392px) scale(.38);transform-origin:center top;will-change:transform}
 .lt-photo{width:100%;aspect-ratio:4/4.4;object-fit:cover;display:block;border-radius:150px 150px 6px 6px}
@@ -260,7 +271,7 @@ footer .thanks{font-size:12.5px;color:var(--sub);margin:16px 0 34px;line-height:
 <div id="wrap">
 
   <!-- 스플래시 -->
-  <div id="intro"><div class="splash-script">We're getting<br>Married!</div></div>
+  <div id="intro"><div class="splash-script"><span class="wline w1">We're getting</span><span class="wline w2">Married!</span></div><p class="splash-hint">TOUCH TO OPEN</p></div>
 
   <canvas id="petals"></canvas>
 
@@ -553,12 +564,13 @@ document.querySelectorAll('img.ph').forEach(function(img){
   }
 });
 
-/* ── 스플래시: 자동 종료(터치 시 즉시) ── */
+/* ── 스플래시: 탭해야 진입 (추후 이 지점에서 BGM 시작) ── */
 (function(){
   var el = document.getElementById('intro');
-  function hide(){ el.classList.add('hide'); }
-  el.addEventListener('click', hide);
-  setTimeout(hide, 2600);
+  el.addEventListener('click', function(){
+    el.classList.add('hide');
+    // TODO: BGM 재생 시작 지점
+  });
 })();
 
 /* ── 봉투 개봉: 스크롤 스크럽 (진행도에 따라 열림) ── */
