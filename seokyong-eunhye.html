@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>석용 ♥ 은혜 결혼합니다</title>
 <meta property="og:title" content="윤석용 ♥ 홍은혜 결혼합니다">
 <meta property="og:description" content="2026년 10월 24일 토요일 오후 2시 · BMK 웨딩홀 (대전)">
@@ -23,7 +23,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Great+Vibes&display=swap" rel="stylesheet">
-<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 :root{
   --bg:#F7F6F1; --card:#FFFFFF; --ink:#659AB5; --sub:#9DB6C6;
@@ -34,7 +34,7 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
 body{
-  font-family:'Pretendard',sans-serif;
+  font-family:'Pretendard Variable','Pretendard',-apple-system,sans-serif;
   background:#EFEDE7; color:var(--ink); line-height:1.75; word-break:keep-all;
   display:flex; justify-content:center;
 }
@@ -256,6 +256,9 @@ footer .thanks{font-size:12.5px;color:var(--sub);margin:16px 0 34px;line-height:
 /* ── 프레스 피드백 (Emil: buttons must feel responsive) ── */
 .contact-btn,.copy-btn,.copy-mini,.map-btns a,.gb-submit,.rv-opt,.share-btn,.acc-head{transition:transform .16s ease-out,background .25s,color .25s}
 .contact-btn:active,.copy-btn:active,.copy-mini:active,.map-btns a:active,.gb-submit:active,.rv-opt:active,.share-btn:active,.acc-head:active{transform:scale(.97)}
+
+/* ── iOS 입력 확대 방지: 폼 컨트롤이 16px 미만이면 포커스 시 화면이 자동 확대됨 ── */
+.gb-form input,.gb-form textarea,.rv-select,.up-input{font-size:16px}
 </style>
 </head>
 <body>
@@ -329,16 +332,16 @@ footer .thanks{font-size:12.5px;color:var(--sub);margin:16px 0 34px;line-height:
     <div class="reveal"><div class="sec-label">GALLERY</div>
     <div class="sec-title">우리의 순간들</div></div>
     <div class="gallery-track reveal d1" id="gtrack">
-      <div class="g-item"><img class="ph" data-key="1" data-label="PHOTO 01" alt="갤러리 1"></div>
-      <div class="g-item"><img class="ph" data-key="2" data-label="PHOTO 02" alt="갤러리 2"></div>
-      <div class="g-item"><img class="ph" data-key="3" data-label="PHOTO 03" alt="갤러리 3"></div>
-      <div class="g-item"><img class="ph" data-key="4" data-label="PHOTO 04" alt="갤러리 4"></div>
-      <div class="g-item"><img class="ph" data-key="5" data-label="PHOTO 05" alt="갤러리 5"></div>
-      <div class="g-item"><img class="ph" data-key="6" data-label="PHOTO 06" alt="갤러리 6"></div>
-      <div class="g-item"><img class="ph" data-key="7" data-label="PHOTO 07" alt="갤러리 7"></div>
-      <div class="g-item"><img class="ph" data-key="8" data-label="PHOTO 08" alt="갤러리 8"></div>
-      <div class="g-item"><img class="ph" data-key="9" data-label="PHOTO 09" alt="갤러리 9"></div>
-      <div class="g-item"><img class="ph" data-key="10" data-label="PHOTO 10" alt="갤러리 10"></div>
+      <div class="g-item"><img class="ph" data-key="1" loading="lazy" decoding="async" data-label="PHOTO 01" alt="갤러리 1"></div>
+      <div class="g-item"><img class="ph" data-key="2" loading="lazy" decoding="async" data-label="PHOTO 02" alt="갤러리 2"></div>
+      <div class="g-item"><img class="ph" data-key="3" loading="lazy" decoding="async" data-label="PHOTO 03" alt="갤러리 3"></div>
+      <div class="g-item"><img class="ph" data-key="4" loading="lazy" decoding="async" data-label="PHOTO 04" alt="갤러리 4"></div>
+      <div class="g-item"><img class="ph" data-key="5" loading="lazy" decoding="async" data-label="PHOTO 05" alt="갤러리 5"></div>
+      <div class="g-item"><img class="ph" data-key="6" loading="lazy" decoding="async" data-label="PHOTO 06" alt="갤러리 6"></div>
+      <div class="g-item"><img class="ph" data-key="7" loading="lazy" decoding="async" data-label="PHOTO 07" alt="갤러리 7"></div>
+      <div class="g-item"><img class="ph" data-key="8" loading="lazy" decoding="async" data-label="PHOTO 08" alt="갤러리 8"></div>
+      <div class="g-item"><img class="ph" data-key="9" loading="lazy" decoding="async" data-label="PHOTO 09" alt="갤러리 9"></div>
+      <div class="g-item"><img class="ph" data-key="10" loading="lazy" decoding="async" data-label="PHOTO 10" alt="갤러리 10"></div>
     </div>
     <div class="g-dots" id="gdots"></div>
   </section>
