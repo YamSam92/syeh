@@ -117,7 +117,7 @@ section{padding:76px 28px;position:relative}
 /* ── 갤러리 ── */
 .gallery-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px;padding:4px 2px 18px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .gallery-track::-webkit-scrollbar{display:none}
-.g-item{flex:0 0 74%;scroll-snap-align:center;border-radius:2px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);cursor:pointer;transition:transform .3s;position:relative;background:#fff}
+.g-item{flex:0 0 74%;scroll-snap-align:center;border-radius:2px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);transition:transform .3s;position:relative;background:#fff}
 .g-item img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block}
 .g-burst{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:2}
 .g-burst span{font-size:72px;color:#fff;text-shadow:0 6px 22px rgba(0,0,0,.4);opacity:0;transform:scale(0)}
@@ -657,11 +657,12 @@ var gtrack = document.getElementById('gtrack'),
     gitems = gtrack.querySelectorAll('.g-item'),
     gdots = document.getElementById('gdots'),
     lbIdx = 0;
-/* 갤러리: 탭 → 확대, 하단 dots */
+/* 갤러리: 가로 스와이프 + 하단 dots (탭 확대는 사용자 요청으로 비활성화)
+   #lightbox 마크업과 openLb/lbMove 는 남아있지만 호출하는 곳이 없어 동작하지 않음.
+   되돌리려면 아래 addEventListener 한 줄만 되살리면 됨. */
 gitems.forEach(function(item, i){
   var dot = document.createElement('i'); if(i===0) dot.className='on';
   gdots.appendChild(dot);
-  item.addEventListener('click', function(){ openLb(i); });
 });
 gtrack.addEventListener('scroll', function(){
   var i = Math.round(gtrack.scrollLeft / (gitems[0].offsetWidth + 14));
