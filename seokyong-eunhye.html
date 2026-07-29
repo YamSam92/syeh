@@ -257,6 +257,15 @@ footer .thanks{font-size:12.5px;color:var(--sub);margin:16px 0 34px;line-height:
 .contact-btn,.copy-btn,.copy-mini,.map-btns a,.gb-submit,.rv-opt,.share-btn,.acc-head{transition:transform .16s ease-out,background .25s,color .25s}
 .contact-btn:active,.copy-btn:active,.copy-mini:active,.map-btns a:active,.gb-submit:active,.rv-opt:active,.share-btn:active,.acc-head:active{transform:scale(.97)}
 
+/* ── BGM 음소거 버튼 ── */
+#bgm-btn{position:fixed;right:16px;bottom:18px;z-index:90;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.92);color:var(--accent);font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 3px 12px rgba(101,154,181,.16);transition:transform .2s,opacity .3s,color .3s;-webkit-tap-highlight-color:transparent;font-family:inherit}
+#bgm-btn:active{transform:scale(.9)}
+#bgm-btn.playing{animation:bgmPulse 2.6s ease-in-out infinite}
+#bgm-btn.muted{color:var(--sub);opacity:.7}
+#bgm-btn.muted::after{content:'';position:absolute;left:9px;right:9px;top:50%;height:1.5px;background:var(--sub);transform:rotate(-45deg)}
+@keyframes bgmPulse{0%,100%{box-shadow:0 3px 12px rgba(101,154,181,.18)}50%{box-shadow:0 3px 16px rgba(101,154,181,.42)}}
+@media (prefers-reduced-motion: reduce){#bgm-btn.playing{animation:none}}
+
 /* ── iOS 입력 확대 방지: 폼 컨트롤이 16px 미만이면 포커스 시 화면이 자동 확대됨 ── */
 .gb-form input,.gb-form textarea,.rv-select,.up-input{font-size:16px}
 </style>
@@ -540,7 +549,7 @@ document.querySelectorAll('img.ph').forEach(function(img){
   var el = document.getElementById('intro');
   el.addEventListener('click', function(){
     el.classList.add('hide');
-    // TODO: BGM 재생 시작 지점
+    if(window.startBgm) window.startBgm();   // 스플래시 탭 = 첫 사용자 제스처 → 여기서 BGM 시작
     var c = document.querySelector('.hero-card');
     if(c) c.classList.add('in');
     var h = document.querySelector('.scroll-hint');
@@ -823,6 +832,48 @@ function sendRsvp(){
   el.addEventListener('click', burst);
 })();
 
+/* ── BGM: 스플래시 탭 시 재생 시작 + 음소거 버튼 (모바일 대응) ──
+   ⚠️ audio/button 요소가 이 스크립트보다 뒤에 있으므로 DOMContentLoaded 래핑 필수 */
+document.addEventListener('DOMContentLoaded', function(){
+  var a = document.getElementById('bgm'), btn = document.getElementById('bgm-btn');
+  if(!a || !btn) return;
+  var BGM_SRC = 'bgm.mp3';   // 곡 교체 시 여기만 수정
+  a.volume = 0.45;
+  a.setAttribute('playsinline','');
+  a.src = BGM_SRC;
+  function setBtn(){
+    if(a.paused || a.muted){ btn.classList.add('muted'); btn.classList.remove('playing'); }
+    else { btn.classList.remove('muted'); btn.classList.add('playing'); }
+  }
+  function tryPlay(){ var p = a.play(); if(p && p.catch) p.catch(function(){}); }
+  window.toggleBgm = function(){
+    if(a.paused){ a.muted = false; tryPlay(); }
+    else { a.muted = !a.muted; }
+    setBtn();
+  };
+  window.startBgm = function(){ tryPlay(); setBtn(); };   // 스플래시 탭 핸들러가 호출
+  a.addEventListener('play', setBtn);
+  a.addEventListener('pause', setBtn);
+  a.addEventListener('error', setBtn);
+  // GitHub Pages가 .mp3를 audio/mp3(비표준)로 서빙 → iOS Safari에서 재생 실패/스톨 가능.
+  // 파일을 통째로 받아 audio/mpeg Blob(Object URL)로 교체해 Range 스톨·Content-Type 문제 회피
+  fetch(BGM_SRC).then(function(r){ return r.blob(); }).then(function(b){
+    try{
+      var url = URL.createObjectURL(new Blob([b], {type:'audio/mpeg'}));
+      var wasPlaying = !a.paused;
+      a.src = url; a.load();
+      if(wasPlaying) tryPlay();   // 이미 언락된 경우 이어서 재생
+    }catch(e){}
+  }).catch(function(){});
+  // 안전망: 스플래시 외 경로로 첫 상호작용이 일어난 경우에도 재생 시도
+  ['pointerdown','touchend','click','keydown'].forEach(function(ev){
+    document.addEventListener(ev, function(){ tryPlay(); setBtn(); }, {once:true});
+  });
+  setBtn();
+});
 </script>
+  <!-- BGM -->
+  <audio id="bgm" loop preload="auto"></audio>
+  <button id="bgm-btn" class="muted" aria-label="배경음악 켜기/끄기" onclick="toggleBgm()">&#9835;</button>
 </body>
 </html>
