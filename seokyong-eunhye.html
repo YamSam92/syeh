@@ -681,11 +681,25 @@ function closeLb(){
 function lbMove(dir){ openLb((lbIdx + dir + gitems.length) % gitems.length); }
 /* 라이트박스 스와이프 */
 (function(){
-  var sx = 0, lb = document.getElementById('lightbox');
-  lb.addEventListener('touchstart', function(e){ sx = e.touches[0].clientX; },{passive:true});
+  // ⚠️ 손가락 개수를 보지 않으면 핀치 확대·확대사진 이동이 스와이프로 오인돼
+  //    사진이 제멋대로 넘어감. 아래 세 가지로 걸러낸다.
+  //    ① 두 손가락 이상이 닿았던 제스처는 무시  ② 세로 이동이 더 크면 무시  ③ 너무 느린 동작은 무시
+  var sx = 0, sy = 0, t0 = 0, multi = false, lb = document.getElementById('lightbox');
+  lb.addEventListener('touchstart', function(e){
+    if(e.touches.length > 1){ multi = true; return; }
+    sx = e.touches[0].clientX; sy = e.touches[0].clientY; t0 = Date.now();
+  },{passive:true});
+  lb.addEventListener('touchmove', function(e){
+    if(e.touches.length > 1) multi = true;
+  },{passive:true});
   lb.addEventListener('touchend', function(e){
+    if(e.touches.length > 0) return;          // 아직 손가락이 남아있으면 판단 보류
+    var wasMulti = multi; multi = false;
+    if(wasMulti) return;                       // 확대/두손가락 제스처였음
     var dx = e.changedTouches[0].clientX - sx;
-    if(Math.abs(dx) > 50) lbMove(dx < 0 ? 1 : -1);
+    var dy = e.changedTouches[0].clientY - sy;
+    if(Date.now() - t0 > 700) return;          // 천천히 끈 것은 사진 이동으로 봄
+    if(Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) lbMove(dx < 0 ? 1 : -1);
   },{passive:true});
 })();
 
