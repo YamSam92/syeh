@@ -115,10 +115,16 @@ section{padding:76px 28px;position:relative}
 .count-msg b{color:var(--accent);font-weight:700}
 
 /* ── 갤러리 ── */
-.gallery-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px;padding:4px 2px 18px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-.gallery-track::-webkit-scrollbar{display:none}
-.g-item{flex:0 0 74%;scroll-snap-align:center;border-radius:2px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);transition:transform .3s;position:relative;background:#fff}
-.g-item img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block}
+/* 정방형 타일 3열. 처음엔 9장만 보이고 '사진 더 보기'로 나머지를 펼친다 */
+.gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.g-item{aspect-ratio:1/1;border-radius:2px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);position:relative;background:#fff}
+.g-item img{width:100%;height:100%;object-fit:cover;display:block}
+.g-item.more{display:none}
+.gallery-grid.open .g-item.more{display:block;animation:gFade .5s var(--ease-out) both}
+@keyframes gFade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.g-more{display:block;margin:24px auto 0;padding:13px 42px;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:40px;font-family:inherit;font-size:12.5px;letter-spacing:3px;cursor:pointer;transition:background .25s,transform .16s var(--ease-out)}
+.g-more:active{transform:scale(.97);background:var(--soft)}
+@media (prefers-reduced-motion:reduce){.gallery-grid.open .g-item.more{animation:none}}
 .g-burst{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:2}
 .g-burst span{font-size:72px;color:#fff;text-shadow:0 6px 22px rgba(0,0,0,.4);opacity:0;transform:scale(0)}
 .g-item.pop .g-burst span{animation:heartPop 1s cubic-bezier(.17,.89,.32,1.27)}
@@ -126,9 +132,6 @@ section{padding:76px 28px;position:relative}
 .g-like{position:absolute;right:10px;bottom:10px;width:37px;height:37px;border-radius:50%;background:rgba(255,255,255,.92);border:1px solid var(--line);font-size:16px;line-height:1;color:var(--ink);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,.12);cursor:pointer;transition:transform .2s,color .2s;z-index:3;font-family:inherit}
 .g-like.liked{color:#D64545;animation:likeBounce .35s cubic-bezier(.17,.89,.32,1.4)}
 @keyframes likeBounce{0%{transform:scale(.6)}60%{transform:scale(1.25)}100%{transform:scale(1)}}
-.g-dots{display:flex;justify-content:center;gap:8px;margin-top:8px}
-.g-dots i{width:6px;height:6px;border-radius:50%;background:#D8D4CC;transition:.3s}
-.g-dots i.on{background:var(--ink);width:22px;border-radius:3px}
 /* 라이트박스 */
 #lightbox{position:fixed;inset:0;background:rgba(15,15,14,.96);z-index:200;display:none;flex-direction:column;justify-content:center;align-items:center}
 #lightbox.open{display:flex}
@@ -340,7 +343,7 @@ footer .thanks{font-size:12.5px;color:var(--sub);margin:16px 0 34px;line-height:
   <section>
     <div class="reveal"><div class="sec-label">GALLERY</div>
     <div class="sec-title">우리의 순간들</div></div>
-    <div class="gallery-track reveal d1" id="gtrack">
+    <div class="gallery-grid reveal d1" id="gtrack">
       <div class="g-item"><img class="ph" data-key="1" loading="lazy" decoding="async" data-label="PHOTO 01" alt="갤러리 1"></div>
       <div class="g-item"><img class="ph" data-key="2" loading="lazy" decoding="async" data-label="PHOTO 02" alt="갤러리 2"></div>
       <div class="g-item"><img class="ph" data-key="3" loading="lazy" decoding="async" data-label="PHOTO 03" alt="갤러리 3"></div>
@@ -350,9 +353,16 @@ footer .thanks{font-size:12.5px;color:var(--sub);margin:16px 0 34px;line-height:
       <div class="g-item"><img class="ph" data-key="7" loading="lazy" decoding="async" data-label="PHOTO 07" alt="갤러리 7"></div>
       <div class="g-item"><img class="ph" data-key="8" loading="lazy" decoding="async" data-label="PHOTO 08" alt="갤러리 8"></div>
       <div class="g-item"><img class="ph" data-key="9" loading="lazy" decoding="async" data-label="PHOTO 09" alt="갤러리 9"></div>
-      <div class="g-item"><img class="ph" data-key="10" loading="lazy" decoding="async" data-label="PHOTO 10" alt="갤러리 10"></div>
+      <div class="g-item more"><img class="ph" data-key="10" loading="lazy" decoding="async" data-label="PHOTO 10" alt="갤러리 10"></div>
+      <div class="g-item more"><img class="ph" data-key="11" loading="lazy" decoding="async" data-label="PHOTO 11" alt="갤러리 11"></div>
+      <div class="g-item more"><img class="ph" data-key="12" loading="lazy" decoding="async" data-label="PHOTO 12" alt="갤러리 12"></div>
+      <div class="g-item more"><img class="ph" data-key="13" loading="lazy" decoding="async" data-label="PHOTO 13" alt="갤러리 13"></div>
+      <div class="g-item more"><img class="ph" data-key="14" loading="lazy" decoding="async" data-label="PHOTO 14" alt="갤러리 14"></div>
+      <div class="g-item more"><img class="ph" data-key="15" loading="lazy" decoding="async" data-label="PHOTO 15" alt="갤러리 15"></div>
+      <div class="g-item more"><img class="ph" data-key="16" loading="lazy" decoding="async" data-label="PHOTO 16" alt="갤러리 16"></div>
+      <div class="g-item more"><img class="ph" data-key="17" loading="lazy" decoding="async" data-label="PHOTO 17" alt="갤러리 17"></div>
     </div>
-    <div class="g-dots" id="gdots"></div>
+    <button class="g-more reveal d2" id="gmore" onclick="showMore()">사진 더 보기</button>
   </section>
 
   <!-- 오시는 길 -->
@@ -490,9 +500,11 @@ const PHOTOS = {
   ringGroom: '',
   ringBride: '',
   snap: 'photos/snap.jpg',
-  gallery: ['photos/g1.jpg', 'photos/g2.jpg', 'photos/g3.jpg',
-            'photos/g4.jpg', 'photos/g5.jpg', 'photos/g6.jpg',
-            'photos/t1.jpg', 'photos/t2.jpg', 'photos/t3.jpg', 'photos/t4.jpg']
+  gallery: ['photos/g1.jpg', 'photos/g2.jpg', 'photos/g3.jpg', 'photos/g4.jpg',
+            'photos/g5.jpg', 'photos/g6.jpg', 'photos/g7.jpg', 'photos/g8.jpg',
+            'photos/g9.jpg', 'photos/g10.jpg', 'photos/g11.jpg', 'photos/g12.jpg',
+            'photos/g13.jpg', 'photos/g14.jpg', 'photos/g15.jpg', 'photos/g16.jpg',
+            'photos/g17.jpg']   // 1~17번 순서
 };
 
 // 🗺️ 지도 검색어
@@ -655,19 +667,15 @@ document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
 /* ── 갤러리 dots + 라이트박스 ── */
 var gtrack = document.getElementById('gtrack'),
     gitems = gtrack.querySelectorAll('.g-item'),
-    gdots = document.getElementById('gdots'),
     lbIdx = 0;
-/* 갤러리: 가로 스와이프 + 하단 dots (탭 확대는 사용자 요청으로 비활성화)
-   #lightbox 마크업과 openLb/lbMove 는 남아있지만 호출하는 곳이 없어 동작하지 않음.
-   되돌리려면 아래 addEventListener 한 줄만 되살리면 됨. */
-gitems.forEach(function(item, i){
-  var dot = document.createElement('i'); if(i===0) dot.className='on';
-  gdots.appendChild(dot);
-});
-gtrack.addEventListener('scroll', function(){
-  var i = Math.round(gtrack.scrollLeft / (gitems[0].offsetWidth + 14));
-  gdots.querySelectorAll('i').forEach(function(d,j){ d.className = j===i ? 'on' : ''; });
-},{passive:true});
+/* 갤러리: 정방형 타일 3열. 처음 9장만 보이고 버튼으로 나머지를 펼친다.
+   (탭 확대는 사용자 요청으로 비활성화 — #lightbox 마크업과 openLb/lbMove 는
+    남아있지만 호출하는 곳이 없어 동작하지 않음) */
+function showMore(){
+  gtrack.classList.add('open');
+  var b = document.getElementById('gmore');
+  if(b) b.style.display = 'none';
+}
 function openLb(i){
   lbIdx = i;
   document.getElementById('lb-img').src = gitems[i].querySelector('img').src;
