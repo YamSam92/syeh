@@ -117,7 +117,7 @@ section{padding:76px 28px;position:relative}
 /* ── 갤러리 ── */
 /* 정방형 타일 3열. 처음엔 9장만 보이고 '사진 더 보기'로 나머지를 펼친다 */
 .gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.g-item{aspect-ratio:1/1;border-radius:2px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);position:relative;background:#fff}
+.g-item{aspect-ratio:1/1;border-radius:2px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);position:relative;background:#fff;cursor:pointer}
 .g-item img{width:100%;height:100%;object-fit:cover;display:block}
 .g-item.more{display:none}
 .gallery-grid.open .g-item.more{display:block;animation:gFade .5s var(--ease-out) both}
@@ -133,9 +133,10 @@ section{padding:76px 28px;position:relative}
 .g-like.liked{color:#D64545;animation:likeBounce .35s cubic-bezier(.17,.89,.32,1.4)}
 @keyframes likeBounce{0%{transform:scale(.6)}60%{transform:scale(1.25)}100%{transform:scale(1)}}
 /* 라이트박스 */
-#lightbox{position:fixed;inset:0;background:rgba(15,15,14,.96);z-index:200;display:none;flex-direction:column;justify-content:center;align-items:center}
+#lightbox{position:fixed;inset:0;background:rgba(15,15,14,.96);z-index:200;display:none;flex-direction:column;justify-content:center;align-items:center;opacity:0;transition:opacity .26s var(--ease-out)}
+#lightbox.shown{opacity:1}
 #lightbox.open{display:flex}
-#lightbox img{max-width:92%;max-height:76vh;border-radius:2px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+#lightbox img{max-width:92%;max-height:76vh;border-radius:2px;box-shadow:0 20px 60px rgba(0,0,0,.5);will-change:transform,opacity}
 #lb-close{position:absolute;top:22px;right:24px;color:#fff;font-size:28px;background:none;border:none;cursor:pointer}
 .lb-nav{position:absolute;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.85);font-size:32px;background:none;border:none;cursor:pointer;padding:20px 14px}
 #lb-prev{left:2px}#lb-next{right:2px}
@@ -507,6 +508,12 @@ const PHOTOS = {
             'photos/g17.jpg']   // 1~17번 순서
 };
 
+// 🔍 확대(라이트박스)용 전체 사진
+//    갤러리 타일은 정방형으로 잘라 쓰지만, 확대하면 자르기 전 원본 비율이 그대로 보여야 한다.
+//    타일에는 주소만 심어두고 실제 다운로드는 확대할 때만 일어난다(초기 로딩 영향 없음).
+const FULL = {};
+for (var _i = 1; _i <= 17; _i++) FULL['g' + _i] = 'photos/full/g' + _i + '.jpg';
+
 // 🗺️ 지도 검색어
 const VENUE_QUERY = '대전 중구 서문로 133 BMK웨딩홀';
 
@@ -547,6 +554,8 @@ document.querySelectorAll('img.ph').forEach(function(img){
            : key === 'snap' ? PHOTOS.snap
            : (PHOTOS.gallery[parseInt(key,10)-1] || '');
   var url = driveToImg(link);
+  var nm = (link.match(/([\w-]+)\.jpg$/) || [])[1];
+  if(nm && FULL[nm]) img.dataset.full = FULL[nm];
   var ph = makePh(img.dataset.label || 'PHOTO');
   if(url){
     img.src = url;
@@ -669,25 +678,71 @@ var gtrack = document.getElementById('gtrack'),
     gitems = gtrack.querySelectorAll('.g-item'),
     lbIdx = 0;
 /* 갤러리: 정방형 타일 3열. 처음 9장만 보이고 버튼으로 나머지를 펼친다.
-   (탭 확대는 사용자 요청으로 비활성화 — #lightbox 마크업과 openLb/lbMove 는
-    남아있지만 호출하는 곳이 없어 동작하지 않음) */
+   탭하면 확대되고, 확대 화면에는 자르기 전 전체 사진이 뜬다(아래 FULL 참고). */
+gitems.forEach(function(item, i){
+  item.addEventListener('click', function(){ openLb(i); });
+});
 function showMore(){
   gtrack.classList.add('open');
   var b = document.getElementById('gmore');
   if(b) b.style.display = 'none';
 }
-function openLb(i){
+/* 라이트박스 전환: 새 사진을 먼저 받아둔 뒤(preload) 현재 사진을 진행 방향으로
+   밀어내고 새 사진이 반대편에서 들어온다. 로딩을 기다리므로 깜빡임이 없다. */
+var lbSrcOf = function(i){ var t = gitems[i].querySelector('img'); return t.dataset.full || t.src; };
+var lbBusy = false;
+var lbReduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function lbShow(i, dir){
+  var img = document.getElementById('lb-img'), src = lbSrcOf(i);
   lbIdx = i;
-  document.getElementById('lb-img').src = gitems[i].querySelector('img').src;
   document.getElementById('lb-count').textContent = (i+1)+' / '+gitems.length;
-  document.getElementById('lightbox').classList.add('open');
-  document.body.style.overflow='hidden';
+  img.src = src;
+  if(lbReduce){ img.style.cssText = ''; return; }
+  img.style.transition = 'none';
+  img.style.opacity = '0';
+  img.style.transform = dir ? 'translateX('+(dir>0?26:-26)+'px)' : 'scale(.97)';
+  void img.offsetWidth;
+  img.style.transition = 'opacity .28s var(--ease-out), transform .36s var(--ease-out)';
+  img.style.opacity = '1';
+  img.style.transform = 'none';
 }
+
+function openLb(i){
+  var lb = document.getElementById('lightbox');
+  lb.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  void lb.offsetWidth;
+  lb.classList.add('shown');
+  lbShow(i, 0);
+}
+
 function closeLb(){
-  document.getElementById('lightbox').classList.remove('open');
-  document.body.style.overflow='';
+  var lb = document.getElementById('lightbox');
+  lb.classList.remove('shown');
+  if(lbReduce){ lb.classList.remove('open'); document.body.style.overflow=''; return; }
+  setTimeout(function(){ lb.classList.remove('open'); document.body.style.overflow=''; }, 240);
 }
-function lbMove(dir){ openLb((lbIdx + dir + gitems.length) % gitems.length); }
+
+function lbMove(dir){
+  if(lbBusy) return;
+  var i = (lbIdx + dir + gitems.length) % gitems.length;
+  if(lbReduce){ lbShow(i, dir); return; }
+  lbBusy = true;
+  var img = document.getElementById('lb-img');
+  var pre = new Image(), ready = false, waited = false;
+  function go(){
+    if(!(ready && waited)) return;
+    lbShow(i, dir);
+    setTimeout(function(){ lbBusy = false; }, 180);
+  }
+  pre.onload = pre.onerror = function(){ ready = true; go(); };
+  pre.src = lbSrcOf(i);
+  img.style.transition = 'opacity .15s ease, transform .15s ease';
+  img.style.opacity = '0';
+  img.style.transform = 'translateX('+(dir>0?-22:22)+'px)';
+  setTimeout(function(){ waited = true; go(); }, 160);
+}
 /* 라이트박스 스와이프 */
 (function(){
   // ⚠️ 손가락 개수를 보지 않으면 핀치 확대·확대사진 이동이 스와이프로 오인돼
