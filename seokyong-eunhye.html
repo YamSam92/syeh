@@ -358,6 +358,7 @@ footer .thanks{font-size:12.5px;color:var(--sub);margin:16px 0 34px;line-height:
       <div class="g-item more"><img class="ph" data-key="21" loading="lazy" decoding="async" data-label="PHOTO 21" alt="갤러리 21"></div>
       <div class="g-item more"><img class="ph" data-key="22" loading="lazy" decoding="async" data-label="PHOTO 22" alt="갤러리 22"></div>
       <div class="g-item more"><img class="ph" data-key="23" loading="lazy" decoding="async" data-label="PHOTO 23" alt="갤러리 23"></div>
+      <div class="g-item more"><img class="ph" data-key="24" loading="lazy" decoding="async" data-label="PHOTO 24" alt="갤러리 24"></div>
     </div>
     <button class="g-more reveal d2" id="gmore" onclick="showMore()">사진 더 보기</button>
   </section>
@@ -502,14 +503,14 @@ const PHOTOS = {
             'photos/g20.jpg', 'photos/g7.jpg', 'photos/g8.jpg', 'photos/g9.jpg',
             'photos/g22.jpg', 'photos/g10.jpg', 'photos/g11.jpg', 'photos/g12.jpg',
             'photos/g13.jpg', 'photos/g14.jpg', 'photos/g23.jpg', 'photos/g15.jpg',
-            'photos/g16.jpg', 'photos/g17.jpg', 'photos/g18.jpg']   // g0 제외 · 냇가(g21)/잔디(g22)/노을(g23) 삽입, 23장
+            'photos/g16.jpg', 'photos/g17.jpg', 'photos/g18.jpg', 'photos/g24.jpg']   // 24장 = 3열×8줄, 마지막 = 노을 신부 독사진(g24)
 };
 
 // 🔍 확대(라이트박스)용 전체 사진
 //    갤러리 타일은 정방형으로 잘라 쓰지만, 확대하면 자르기 전 원본 비율이 그대로 보여야 한다.
 //    타일에는 주소만 심어두고 실제 다운로드는 확대할 때만 일어난다(초기 로딩 영향 없음).
 const FULL = {};
-for (var _i = 1; _i <= 23; _i++) FULL['g' + _i] = 'photos/full/g' + _i + '.jpg';
+for (var _i = 1; _i <= 24; _i++) FULL['g' + _i] = 'photos/full/g' + _i + '.jpg';
 
 // 🗺️ 지도 검색어
 const VENUE_QUERY = '대전 중구 서문로 133 BMK웨딩홀';
